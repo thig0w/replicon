@@ -1,6 +1,6 @@
-xlwings==0.11.8
+#xlwings==0.11.8
 PyPDF2==1.26.0
 simplejson==3.13.2
-requests==2.18.4
+requests==2.21.0
 pypiwin32==223
 pdfkit==0.6.1
