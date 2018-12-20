@@ -33,7 +33,8 @@ manager_mail_rg = xw.sheets["Config"].range("D16").value
 user_name_rg = xw.sheets["Config"].range("D17").value
 client_info_rg = xw.sheets["Config"].range("D18").value
 num_days_rg = xw.sheets["Config"].range("D19").value
-start_date_rg = xw.sheets["Config"].range("D20").value
+printing_rg = xw.sheets["Config"].range("D20").value
+start_date_rg = xw.sheets["Config"].range("D21").value
 
 
 def create_replicon(password, all_sheets=False):
@@ -129,7 +130,7 @@ def send_mail():
     # Clean Error Cell
     xw.Range(error_rg).value = ''
 
-    if xw.Range(images_path_rg).value is None or xw.Range(repl_num_rg).value is None:
+    if xw.Range(images_path_rg).value is None or xw.Range(repl_num_rg).value is None or not os.path.exists(xw.Range(images_path_rg).value):
         xw.Range(error_rg).value = 'Please validate if the replicon was generated or if the path to images exists!'
         return
 
@@ -184,7 +185,7 @@ def reset(tarinfo):
 def generate_xl_pdf(path, repl_num):
     # Get the Excel Application COM object
     xl = EnsureDispatch("Excel.Application")
-    print_area = 'A1:W68'
+    print_area = printing_rg
     pdf_path = path + '\\' + str(repl_num) + '_list.pdf'
 
     wb = xl.ActiveWorkbook
@@ -201,8 +202,6 @@ def generate_xl_pdf(path, repl_num):
 
 
 if __name__ == "__main__" or __name__ == "__builtin__":
-    # create_replicon('', False)
+    create_replicon('', False)
     send_mail()
     # generate_xl_pdf()
-# adicionar c:/python27 e c:/python27/Scripts nas variaveis de ambiente
-# setx path "%PATH%;C:\Python\Python27;C:\Python\Python27\Scripts"

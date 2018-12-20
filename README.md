@@ -20,7 +20,7 @@ Simplify my expenses reports
 
 3. Open a command window and install the required python modules using the following commands:
 ```
-pip install xlwings reportlab PyPDF2 simplejson requests pypiwin32
+pip install xlwings reportlab PyPDF2 simplejson requests pypiwin32 pdfkit
 ```
 
 4. Garantee that the Project Name Format in your replicon is set to "Name - Code"
@@ -31,3 +31,11 @@ pip install xlwings reportlab PyPDF2 simplejson requests pypiwin32
 ## API Reference
 
 xlwings - http://docs.xlwings.org/en/stable/quickstart.html
+
+## Author
+* **Thiago Weidman**
+
+## Contributors
+* **Danilo Passos** - The guy who made the worksheet template (Yeap, I stole the idea).
+* **Rodrigo Tomazeli** - The Beta tester and "implementer"
+* **Manuel Cardoso** - The new features specifier :)
