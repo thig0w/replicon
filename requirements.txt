@@ -2,5 +2,5 @@
 PyPDF2==1.26.0
 simplejson==3.13.2
 requests==2.21.0
-pypiwin32==223
+#pypiwin32==223
 pdfkit==0.6.1
