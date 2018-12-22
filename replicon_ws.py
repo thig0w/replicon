@@ -14,7 +14,7 @@ import os
 from win32com.client.gencache import EnsureDispatch
 
 # Starting logging
-logging.basicConfig(level=logging.DEBUG)
+logging.basicConfig(level=logging.NOTSET)
 logger = logging.getLogger(__name__)
 
 # Get Configured ranges
@@ -59,7 +59,7 @@ def create_replicon(password, all_sheets=False):
         # Get Replicon
         try:
             repl = Replicon(userid=xw.sheets["Config"].range("D2").value, password=password,
-                            project_cc=xw.Range("C2").value,
+                            project_cc=int(xw.Range("C2").value),
                             expenseSlug=str(int(xw.Range(repl_num_rg).value)) if xw.Range(
                                 repl_num_rg).value is not None else None,
                             description=xw.Range(repl_descr_rg).value, isExpense=True)
@@ -151,7 +151,7 @@ def send_mail():
         xw.sheets["Config"].range(manager_mail_rg).value if xw.sheets["Config"].range(
             manager_mail_rg).value is not None else '')
     mail.Subject = xw.sheets["Config"].range(user_name_rg).value + ' - ' + xw.Range(repl_num_rg).value + ' - ' + \
-                   xw.sheets["Config"].range(client_info_rg).value + ' (' + xw.Range("C2").value + ') - ' + xw.Range(
+                   xw.sheets["Config"].range(client_info_rg).value + ' (' + str(int(xw.Range("C2").value)) + ') - ' + xw.Range(
         start_date_rg).value.strftime('%d/%m/%Y') + ' - ' + (
                            xw.Range(start_date_rg).value + timedelta(days=5)).strftime('%d/%m/%Y')
     mail.HtmlBody = 'Seguem detalhes em anexo'
@@ -202,6 +202,6 @@ def generate_xl_pdf(path, repl_num):
 
 
 if __name__ == "__main__" or __name__ == "__builtin__":
-    create_replicon('', False)
+    #create_replicon('', False)
     send_mail()
     # generate_xl_pdf()

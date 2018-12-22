@@ -9,7 +9,7 @@ from reportlab.lib.pagesizes import A4
 from reportlab.platypus import SimpleDocTemplate, Image, PageBreak
 
 # Starting logging
-logging.basicConfig(level=logging.CRITICAL)
+logging.basicConfig(level=logging.NOTSET)
 logger = logging.getLogger(__name__)
 
 # global vars

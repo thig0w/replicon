@@ -9,7 +9,7 @@ import simplejson as json
 import csv
 import pdfkit
 
-logging.basicConfig(level=logging.DEBUG)
+logging.basicConfig(level=logging.NOTSET)
 logger = logging.getLogger(__name__)
 
 
