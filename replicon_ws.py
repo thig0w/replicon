@@ -192,8 +192,14 @@ def generate_xl_pdf(path, repl_num):
     ws = wb.ActiveSheet
 
     ws.PageSetup.Zoom = False
-    ws.PageSetup.FitToPagesTall = 1
+    ws.PageSetup.FitToPagesTall = False
     ws.PageSetup.FitToPagesWide = 1
+    ws.PageSetup.LeftMargin = False
+    ws.PageSetup.RightMargin = False
+    ws.PageSetup.TopMargin = False
+    ws.PageSetup.BottomMargin = False
+    ws.PageSetup.Orientation = 2
+
     ws.PageSetup.PrintArea = print_area
 
     ws.ExportAsFixedFormat(0, pdf_path)
@@ -203,5 +209,6 @@ def generate_xl_pdf(path, repl_num):
 
 if __name__ == "__main__" or __name__ == "__builtin__":
     #create_replicon('', False)
-    send_mail()
+    # send_mail()
+    generate_xl_pdf('C:\Users\LOGIC\Dropbox\Trabalho\Replicon','1234')
     # generate_xl_pdf()
