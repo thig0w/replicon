@@ -29,7 +29,7 @@ def create_pdf(folder_root):
     for dirpath, dirnames, filenames in os.walk(folder_root):
         logger.debug('dirpath: %s - filenames: %s' % (dirpath, filenames))
         for filename in filenames:
-            if filename.lower().endswith(".jpg"):
+            if filename.lower().endswith(".jpg") or filename.lower().endswith(".png"):
                 filepath = os.path.join(dirpath, filename)
                 logger.debug('Merge Images - filename: %s - filepath: %s' % (filename, filepath))
                 parts.append(Image(filepath, width=A4[0], height=A4[1], kind='proportional'))
