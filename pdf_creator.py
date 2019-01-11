@@ -24,15 +24,22 @@ def create_pdf(folder_root):
     if not os.path.exists(folder_root):
         logger.debug('Image folder does not exists!')
         return None
-    doc = SimpleDocTemplate(folder_root + "\\" + photo_pdf_filename, pagesize=A4)
+    doc = SimpleDocTemplate(folder_root + "\\" + photo_pdf_filename,
+                            pagesize=A4)
     parts = []
+    images_ext = (".jpg", ".JPG", ".jpeg", ".png", ".PNG")
+
     for dirpath, dirnames, filenames in os.walk(folder_root):
         logger.debug('dirpath: %s - filenames: %s' % (dirpath, filenames))
         for filename in filenames:
-            if filename.lower().endswith(".jpg") or filename.lower().endswith(".png"):
+            if filename.lower().endswith(images_ext):
                 filepath = os.path.join(dirpath, filename)
                 logger.debug('Merge Images - filename: %s - filepath: %s' % (filename, filepath))
-                parts.append(Image(filepath, width=A4[0], height=A4[1], kind='proportional'))
+                parts.append(Image(filepath,
+                                   width=doc.width - 12,
+                                   height=doc.height - 12,
+                                   kind='proportional')
+                             )
                 parts.append(PageBreak())
 
         # do not interate on subfolders
@@ -67,13 +74,13 @@ def create_pdf(folder_root):
 def to_base64(fpath):
     if fpath is None:
         logger.debug('Path is null, no base64 string was created')
-        return (None,None)
-    logger.debug("Encoding file (%s) to base64" %(fpath))
+        return (None, None)
+    logger.debug("Encoding file (%s) to base64" % (fpath))
     with open(fpath, "rb") as pdf_file:
         encoded_file = base64.b64encode(pdf_file.read())
-    return (mimetypes.types_map['.pdf'],encoded_file)
+    return (mimetypes.types_map['.pdf'], encoded_file)
 
 
-if __name__ == "__main__":
-    # create_pdf("C:\\Repositorios\\thi\\replicon\\63358")
-    print to_base64("C:\\Repositorios\\thi\\replicon\\63358\\all.pdf")
+if __name__ == "__main__" or __name__ == "__builtin__":
+    create_pdf("C:\\Users\\LOGIC\\Dropbox\\Trabalho\\Replicon\\abc")
+    # print to_base64("C:\\Repositorios\\thi\\replicon\\63358\\all.pdf")
