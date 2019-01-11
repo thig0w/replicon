@@ -130,7 +130,8 @@ def send_mail():
     # Clean Error Cell
     xw.Range(error_rg).value = ''
 
-    if xw.Range(images_path_rg).value is None or xw.Range(repl_num_rg).value is None or not os.path.exists(xw.Range(images_path_rg).value):
+    if xw.Range(images_path_rg).value is None or xw.Range(repl_num_rg).value is None or not os.path.exists(
+            xw.Range(images_path_rg).value):
         xw.Range(error_rg).value = 'Please validate if the replicon was generated or if the path to images exists!'
         return
 
@@ -151,9 +152,10 @@ def send_mail():
         xw.sheets["Config"].range(manager_mail_rg).value if xw.sheets["Config"].range(
             manager_mail_rg).value is not None else '')
     mail.Subject = xw.sheets["Config"].range(user_name_rg).value + ' - ' + xw.Range(repl_num_rg).value + ' - ' + \
-                   xw.sheets["Config"].range(client_info_rg).value + ' (' + str(int(xw.Range("C2").value)) + ') - ' + xw.Range(
-        start_date_rg).value.strftime('%d/%m/%Y') + ' - ' + (
-                           xw.Range(start_date_rg).value + timedelta(days=5)).strftime('%d/%m/%Y')
+                   xw.Range(client_info_rg).value + ' Expense Sheet (' + \
+                   str(int(xw.Range("C2").value)) + ') - ' + \
+                   xw.Range(start_date_rg).value.strftime('%d/%m/%Y') + ' - ' + \
+                   (xw.Range(start_date_rg).value + timedelta(days=5)).strftime('%d/%m/%Y')
     mail.HtmlBody = 'Seguem detalhes em anexo'
     try:
         logger.debug('attaching mail = %s' % (photo_pdf_path))
@@ -167,7 +169,7 @@ def send_mail():
 
     # copy replicon list to main folder
     logger.debug('Copying pdf list from %s to %s' % (
-    list_pdf_path, os.path.dirname(os.path.dirname(xw.Range(images_path_rg).value))))
+        list_pdf_path, os.path.dirname(os.path.dirname(xw.Range(images_path_rg).value))))
     shutil.copy(list_pdf_path, os.path.dirname(xw.Range(images_path_rg).value))
 
     tar = tarfile.open(xw.Range(images_path_rg).value + "ok.tgz", "w:gz")
@@ -208,7 +210,7 @@ def generate_xl_pdf(path, repl_num):
 
 
 if __name__ == "__main__" or __name__ == "__builtin__":
-    #create_replicon('', False)
+    # create_replicon('', False)
     # send_mail()
-    generate_xl_pdf('C:\Users\LOGIC\Dropbox\Trabalho\Replicon','1234')
+    generate_xl_pdf('C:\Users\LOGIC\Dropbox\Trabalho\Replicon', '1234')
     # generate_xl_pdf()
