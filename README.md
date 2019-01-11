@@ -24,8 +24,11 @@ pip install xlwings reportlab PyPDF2 simplejson requests pypiwin32 pdfkit
 ```
 
 4. Garantee that the Project Name Format in your replicon is set to "Name - Code"
+
 	a) Login on your Replicon account
+	
 	b) Go to settings (engine wheel - upper right corner)
+	
 	c) Change "Project Name Format" to "Name - Code"
 
 ## API Reference
