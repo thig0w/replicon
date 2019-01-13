@@ -23,7 +23,12 @@ Simplify my expenses reports
 pip install xlwings reportlab PyPDF2 simplejson requests pypiwin32 pdfkit
 ```
 
-4. Garantee that the Project Name Format in your replicon is set to "Name - Code"
+4. Install de xlwings addon on excel typing the following command on a command window:
+```
+xlwings addin install
+```
+
+5. Garantee that the Project Name Format in your replicon is set to "Name - Code"
 
 	a) Login on your Replicon account
 	
