@@ -35,7 +35,7 @@ client_info_rg = xw.sheets["Config"].range("D18").value
 num_days_rg = xw.sheets["Config"].range("D19").value
 printing_rg = xw.sheets["Config"].range("D20").value
 start_date_rg = xw.sheets["Config"].range("D21").value
-
+repl_return_amt_rg = xw.sheets["Config"].range("D22").value
 
 def create_replicon(password, all_sheets=False):
     logger.debug('Running create_replicon with all_sheets = %s' % (all_sheets))
@@ -74,53 +74,56 @@ def create_replicon(password, all_sheets=False):
 
         # Build Entries
         entries = []
-        for meals in xw.Range(meals_rg).value:
-            if meals[1] is not (None):
-                logger.debug('Add Entry: %s - %s' % (meals[dispo_idx['DATE']], meals[dispo_idx['AMOUNT']]))
-                entries.append(repl.get_new_entry(date=meals[dispo_idx['DATE']], amount=meals[dispo_idx['AMOUNT']],
-                                                  entry_desc=meals[dispo_idx['DESCRIPTION']],
-                                                  expense_code=meals[dispo_idx['EXPENSE CODE']].split('#')[-1],
-                                                  bill_client=meals[dispo_idx['BILLABLE']],
-                                                  reimburse_emp=meals[dispo_idx['REIMBURSE']],
-                                                  currency=meals[dispo_idx['CURRENCY']].split('#')[-1]))
+        if meals_rg is not (None):
+            for meals in xw.Range(meals_rg).value:
+                if meals[1] is not (None):
+                    logger.debug('Add Entry: %s - %s' % (meals[dispo_idx['DATE']], meals[dispo_idx['AMOUNT']]))
+                    entries.append(repl.get_new_entry(date=meals[dispo_idx['DATE']], amount=meals[dispo_idx['AMOUNT']],
+                                                      entry_desc=meals[dispo_idx['DESCRIPTION']],
+                                                      expense_code=meals[dispo_idx['EXPENSE CODE']].split('#')[-1],
+                                                      bill_client=meals[dispo_idx['BILLABLE']],
+                                                      reimburse_emp=meals[dispo_idx['REIMBURSE']],
+                                                      currency=meals[dispo_idx['CURRENCY']].split('#')[-1]))
 
-        for transp in xw.Range(transp_rg).value:
-            if transp[1] is not (None):
-                logger.debug('Add Entry: %s - %s' % (transp[dispo_idx['DATE']], transp[dispo_idx['AMOUNT']]))
-                entries.append(
-                    repl.get_new_entry(date=transp[dispo_idx['DATE']], amount=transp[dispo_idx['AMOUNT']],
-                                       entry_desc=transp[dispo_idx['DESCRIPTION']],
-                                       expense_code=transp[dispo_idx['EXPENSE CODE']].split('#')[-1],
-                                       bill_client=transp[dispo_idx['BILLABLE']],
-                                       reimburse_emp=transp[dispo_idx['REIMBURSE']],
-                                       currency=transp[dispo_idx['CURRENCY']].split('#')[-1]))
-
-        parking = xw.Range(parking_rg).value
-        if parking[1] is not (None):
-            logger.debug('Add Entry: %s - %s' % (parking[dispo_idx['DATE']], parking[dispo_idx['AMOUNT']]))
-            entries.append(repl.get_new_entry(date=parking[dispo_idx['DATE']], amount=parking[dispo_idx['AMOUNT']],
-                                              entry_desc=parking[dispo_idx['DESCRIPTION']],
-                                              expense_code=parking[dispo_idx['EXPENSE CODE']].split('#')[-1],
-                                              bill_client=parking[dispo_idx['BILLABLE']],
-                                              reimburse_emp=parking[dispo_idx['REIMBURSE']],
-                                              currency=parking[dispo_idx['CURRENCY']].split('#')[-1]))
-
-        printing = xw.Range(print_rg).value
-        if printing[1] is not (None):
-            base64_pdf = (None, None)  # pdf_creator.to_base64(pdf_path)
-            logger.debug('Add Entry: %s - %s' % (printing[dispo_idx['DATE']], printing[dispo_idx['AMOUNT']]))
-            entries.append(repl.get_new_entry(date=printing[dispo_idx['DATE']], amount=printing[dispo_idx['AMOUNT']],
-                                              entry_desc=printing[dispo_idx['DESCRIPTION']],
-                                              project_cc=xw.Range("C2").value,
-                                              expense_code=printing[dispo_idx['EXPENSE CODE']].split('#')[-1],
-                                              bill_client=printing[dispo_idx['BILLABLE']],
-                                              reimburse_emp=printing[dispo_idx['REIMBURSE']], mime_type=base64_pdf[0],
-                                              base64_file=base64_pdf[1],
-                                              currency=printing[dispo_idx['CURRENCY']].split('#')[-1]))
+        if transp_rg is not (None):
+            for transp in xw.Range(transp_rg).value:
+                if transp[1] is not (None):
+                    logger.debug('Add Entry: %s - %s' % (transp[dispo_idx['DATE']], transp[dispo_idx['AMOUNT']]))
+                    entries.append(
+                        repl.get_new_entry(date=transp[dispo_idx['DATE']], amount=transp[dispo_idx['AMOUNT']],
+                                           entry_desc=transp[dispo_idx['DESCRIPTION']],
+                                           expense_code=transp[dispo_idx['EXPENSE CODE']].split('#')[-1],
+                                           bill_client=transp[dispo_idx['BILLABLE']],
+                                           reimburse_emp=transp[dispo_idx['REIMBURSE']],
+                                           currency=transp[dispo_idx['CURRENCY']].split('#')[-1]))
+        if parking_rg is not (None):
+            parking = xw.Range(parking_rg).value
+            if parking[1] is not (None):
+                logger.debug('Add Entry: %s - %s' % (parking[dispo_idx['DATE']], parking[dispo_idx['AMOUNT']]))
+                entries.append(repl.get_new_entry(date=parking[dispo_idx['DATE']], amount=parking[dispo_idx['AMOUNT']],
+                                                  entry_desc=parking[dispo_idx['DESCRIPTION']],
+                                                  expense_code=parking[dispo_idx['EXPENSE CODE']].split('#')[-1],
+                                                  bill_client=parking[dispo_idx['BILLABLE']],
+                                                  reimburse_emp=parking[dispo_idx['REIMBURSE']],
+                                                  currency=parking[dispo_idx['CURRENCY']].split('#')[-1]))
+        if print_rg is not (None):
+            printing = xw.Range(print_rg).value
+            if printing[1] is not (None):
+                base64_pdf = (None, None)  # pdf_creator.to_base64(pdf_path)
+                logger.debug('Add Entry: %s - %s' % (printing[dispo_idx['DATE']], printing[dispo_idx['AMOUNT']]))
+                entries.append(repl.get_new_entry(date=printing[dispo_idx['DATE']], amount=printing[dispo_idx['AMOUNT']],
+                                                  entry_desc=printing[dispo_idx['DESCRIPTION']],
+                                                  project_cc=xw.Range("C2").value,
+                                                  expense_code=printing[dispo_idx['EXPENSE CODE']].split('#')[-1],
+                                                  bill_client=printing[dispo_idx['BILLABLE']],
+                                                  reimburse_emp=printing[dispo_idx['REIMBURSE']], mime_type=base64_pdf[0],
+                                                  base64_file=base64_pdf[1],
+                                                  currency=printing[dispo_idx['CURRENCY']].split('#')[-1]))
 
         repl.add_expense_entries(entries, global_currency)
         # Record replicon number to the sheet
         xw.Range(repl_num_rg).value = repl.expenseUri.split(':')[-1]
+        xw.Range(repl_return_amt_rg).value = repl.replicon_total
 
 
 def send_mail():
@@ -210,7 +213,7 @@ def generate_xl_pdf(path, repl_num):
 
 
 if __name__ == "__main__" or __name__ == "__builtin__":
-    # create_replicon('', False)
+    create_replicon('Senhacomplexa1', False)
     # send_mail()
-    generate_xl_pdf('C:\Users\LOGIC\Dropbox\Trabalho\Replicon', '1234')
+    # generate_xl_pdf('C:\Users\LOGIC\Dropbox\Trabalho\Replicon', '1234')
     # generate_xl_pdf()

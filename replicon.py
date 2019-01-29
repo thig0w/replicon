@@ -24,6 +24,7 @@ class Replicon:
         self.expenseSlug = expenseSlug
         self.description = description
         self.EXPENSE_STATUS_OPEN = 'urn:replicon:approval-status:open'
+        self.replicon_total = 0
 
         # get user server url
         url = 'https://global.replicon.com/DiscoveryService1.svc/GetUserIntegrationDetails'
@@ -157,6 +158,9 @@ class Replicon:
         data_header["parameter"]["entries"] = entriesList
         url = self.serviceUrl + 'ExpenseService1.svc/PutExpenseSheet'
         jsonresponse = self.__post_to_url(url, data_header)
+        logger.debug('=====> %s ', json.dumps(jsonresponse))
+        self.replicon_total = sum([float(jsonresponse["d"]["entries"][a]["expenseEntry"]["incurredAmountGross"]["amount"]) for a in
+                                   xrange(len(jsonresponse["d"]["entries"]))])
 
     def get_new_entry(self, entry_desc='taxi', project_cc='2084', date=datetime.today(), expense_code='6', currency='9',
                       amount='1.22', bill_client='Yes', reimburse_emp='Yes', mime_type=None, base64_file=None):
@@ -226,7 +230,7 @@ class Replicon:
 
 if __name__ == "__main__" or __name__ == "__builtin__":
     # getpass.win_getpass()
-    repl = Replicon('logicinfo', 'tweidman', 'pass', 2058, expenseSlug=64350)
+    repl = Replicon('logicinfo', 'tweidman', 'pass', 2058)
     # repl = Replicon('logicinfo', 'tweidman', 'pass', 2058, description='Teste')
     #
     # print repl.useruri
@@ -239,5 +243,5 @@ if __name__ == "__main__" or __name__ == "__builtin__":
     #            repl.get_new_entry('taxi4', '2084', date, '6', '9', '34.56'),
     #            repl.get_new_entry('taxi5', '2084', date, '6', '9', '24.56')]
     # repl.add_expense_entries(entries)
-
-    # try urllib.getproxies()   
+    # repl.get_details()
+    # print repl.replicon_total
