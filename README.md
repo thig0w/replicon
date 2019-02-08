@@ -14,7 +14,7 @@ Simplify my expenses reports
 
     a) Command+r > type "rundll32 sysdm.cpl,EditEnvironmentVariables"
 
-    b) Check if there is somenthing like "setx path "C:\Python\Python27;C:\Python\Python27\Scripts" in the PATH variable
+    b) Check if there is somenthing like "C:\Program Files (x86)\Python37-32\scripts;C:\Program Files (x86)\Python37-32" in the PATH variable
 
     c) Add it if necessary
 
