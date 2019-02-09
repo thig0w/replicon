@@ -52,7 +52,7 @@ def create_pdf(folder_root):
             if filename.lower().endswith(".pdf"):
                 filepath = os.path.join(dirpath, filename)
                 logger.debug('Merge PDF - filename: %s - filepath: %s' % (filename, filepath))
-                with file(filepath, 'rb') as f:
+                with open(filepath, 'rb') as f:
                     pdfMerger.append(PdfFileReader(f, strict=False))
 
         # do not interate on subfolders

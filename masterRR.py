@@ -52,7 +52,7 @@ def get_expense_values(password):
     report_header = list_report.pop(0)
     report_total = list_report.pop(-1)
 
-    for i in xrange(list_report.__len__()):
+    for i in range(list_report.__len__()):
         list_report[i][4] = list_report[i][4][:3]
         if list_report[i][4] != local_currency:
             r = Rates(list_report[i][4], local_currency)

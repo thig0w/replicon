@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 import logging
 import time
-import urllib
+import urllib.request, urllib.parse, urllib.error
 from datetime import datetime
 
 import requests
@@ -75,7 +75,7 @@ class Replicon:
     def __get_from_url(self, url):
         headers = {'Content-type': 'application/json', 'Accept': 'text/plain'}
         response = requests.get(url, auth=(self.company + '\\' + self.userid, self.password), headers=headers,
-                                proxies=urllib.getproxies())
+                                proxies=urllib.request.getproxies())
         logger.debug('get_from_url %s / %s', url, response)
         if response.ok:
             json_response = json.loads(response.text)
@@ -94,7 +94,7 @@ class Replicon:
         headers = {'Content-type': 'application/json', 'Accept': 'text/plain'}
 
         response = requests.post(url, auth=(self.company + '\\' + self.userid, self.password), data=json.dumps(data),
-                                 headers=headers, proxies=urllib.getproxies())
+                                 headers=headers, proxies=urllib.request.getproxies())
         logger.debug('post_to_url %s / %s / %s', url, json.dumps(data), response)
         if response.ok:
             json_response = json.loads(response.text)
@@ -160,7 +160,7 @@ class Replicon:
         jsonresponse = self.__post_to_url(url, data_header)
         logger.debug('=====> %s ', json.dumps(jsonresponse))
         self.replicon_total = sum([float(jsonresponse["d"]["entries"][a]["expenseEntry"]["incurredAmountGross"]["amount"]) for a in
-                                   xrange(len(jsonresponse["d"]["entries"]))])
+                                   range(len(jsonresponse["d"]["entries"]))])
 
     def get_new_entry(self, entry_desc='taxi', project_cc='2084', date=datetime.today(), expense_code='6', currency='9',
                       amount='1.22', bill_client='Yes', reimburse_emp='Yes', mime_type=None, base64_file=None):

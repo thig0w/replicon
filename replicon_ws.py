@@ -64,7 +64,7 @@ def create_replicon(password, all_sheets=False):
                                 repl_num_rg).value is not None else None,
                             description=xw.Range(repl_descr_rg).value, isExpense=True)
         except Exception as e:
-            xw.Range(error_rg).value = e.message
+            xw.Range(error_rg).value = e.args[0]
             continue
 
         # Check if replicon is open to overwrite the entries
@@ -213,7 +213,7 @@ def generate_xl_pdf(path, repl_num):
 
 
 if __name__ == "__main__" or __name__ == "__builtin__":
-    create_replicon('', False)
+    create_replicon('Senhacomplexa1', False)
     # send_mail()
     # generate_xl_pdf('C:\Users\LOGIC\Dropbox\Trabalho\Replicon', '1234')
     # generate_xl_pdf()

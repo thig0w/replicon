@@ -5,7 +5,7 @@ from isoweek import Week
 
 import requests
 import simplejson as json
-import urllib
+import urllib.request, urllib.parse, urllib.error
 
 # Starting logging
 logging.basicConfig(level=logging.NOTSET)
@@ -61,4 +61,4 @@ class Rates:
 
 if __name__ == "__builtin__" or __name__ == "__main__":
     rate = Rates('eur', 'brl')
-    print rate.get_by_week(2018, 12)
+    print(rate.get_by_week(2018, 12))
