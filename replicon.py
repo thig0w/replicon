@@ -223,7 +223,8 @@ class Replicon:
         logger.debug('Generating report: %s' % (reportUri))
         jsonresponse = self.__post_to_url(url, data)
         # Fix euro sign problem encoding the string to utf-8
-        report_string = jsonresponse['d']['payload'].encode('utf-8')
+        # excluded encode: when moved to py3 this part was receiving a byte/string conflict error
+        report_string = jsonresponse['d']['payload'] #.encode('utf-8')
         csv_report = csv.reader(report_string.split('\r\n')[:-1])
         return list(csv_report)
 
