@@ -20,7 +20,7 @@ Simplify my expenses reports
 
 3. Open a command window and install the required python modules using the following commands:
 ```
-pip install xlwings reportlab PyPDF2 simplejson requests pypiwin32 pdfkit
+pip install xlwings reportlab PyPDF2 simplejson requests pypiwin32 pdfkit isoweek
 ```
 
 4. Install de xlwings addon on excel typing the following command on a command window:
