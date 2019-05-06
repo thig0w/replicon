@@ -14,11 +14,11 @@ logger = logging.getLogger(__name__)
 
 # global vars
 photo_pdf_filename = "fotos.pdf"
-merged_pdf_filename = "comprovantes.pdf"
 original_files_dirname = "originals"
 
 
-def create_pdf(folder_root):
+def create_pdf(folder_root, replicon_no):
+    merged_pdf_filename = replicon_no + "_comprovantes.pdf"
     if folder_root is None:
         return None
     if not os.path.exists(folder_root):
@@ -82,5 +82,5 @@ def to_base64(fpath):
 
 
 if __name__ == "__main__" or __name__ == "__builtin__":
-    create_pdf("C:\\Users\\LOGIC\\Dropbox\\Trabalho\\Replicon\\abc")
+    create_pdf("C:\\Users\\LOGIC\\Dropbox\\Trabalho\\Replicon\\83281", '83281')
     # print to_base64("C:\\Repositorios\\thi\\replicon\\63358\\all.pdf")

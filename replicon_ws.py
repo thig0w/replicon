@@ -37,6 +37,7 @@ printing_rg = xw.sheets["Config"].range("D20").value
 start_date_rg = xw.sheets["Config"].range("D21").value
 repl_return_amt_rg = xw.sheets["Config"].range("D22").value
 
+
 def create_replicon(password, all_sheets=False):
     logger.debug('Running create_replicon with all_sheets = %s' % (all_sheets))
     sheets = [xw.sheets.active] if not all_sheets else xw.sheets
@@ -111,14 +112,15 @@ def create_replicon(password, all_sheets=False):
             if printing[1] is not (None):
                 base64_pdf = (None, None)  # pdf_creator.to_base64(pdf_path)
                 logger.debug('Add Entry: %s - %s' % (printing[dispo_idx['DATE']], printing[dispo_idx['AMOUNT']]))
-                entries.append(repl.get_new_entry(date=printing[dispo_idx['DATE']], amount=printing[dispo_idx['AMOUNT']],
-                                                  entry_desc=printing[dispo_idx['DESCRIPTION']],
-                                                  project_cc=xw.Range("C2").value,
-                                                  expense_code=printing[dispo_idx['EXPENSE CODE']].split('#')[-1],
-                                                  bill_client=printing[dispo_idx['BILLABLE']],
-                                                  reimburse_emp=printing[dispo_idx['REIMBURSE']], mime_type=base64_pdf[0],
-                                                  base64_file=base64_pdf[1],
-                                                  currency=printing[dispo_idx['CURRENCY']].split('#')[-1]))
+                entries.append(
+                    repl.get_new_entry(date=printing[dispo_idx['DATE']], amount=printing[dispo_idx['AMOUNT']],
+                                       entry_desc=printing[dispo_idx['DESCRIPTION']],
+                                       project_cc=xw.Range("C2").value,
+                                       expense_code=printing[dispo_idx['EXPENSE CODE']].split('#')[-1],
+                                       bill_client=printing[dispo_idx['BILLABLE']],
+                                       reimburse_emp=printing[dispo_idx['REIMBURSE']], mime_type=base64_pdf[0],
+                                       base64_file=base64_pdf[1],
+                                       currency=printing[dispo_idx['CURRENCY']].split('#')[-1]))
 
         repl.add_expense_entries(entries, global_currency)
         # Record replicon number to the sheet
@@ -145,7 +147,7 @@ def send_mail():
         shutil.move(xw.Range(images_path_rg).value, new_path)
         xw.Range(images_path_rg).value = new_path
 
-    photo_pdf_path = pdf_creator.create_pdf(xw.Range(images_path_rg).value)
+    photo_pdf_path = pdf_creator.create_pdf(xw.Range(images_path_rg).value, xw.Range(repl_num_rg).value)
     list_pdf_path = generate_xl_pdf(xw.Range(images_path_rg).value, xw.Range(repl_num_rg).value)
 
     logger.debug('Starting Mail creation')
@@ -191,7 +193,7 @@ def generate_xl_pdf(path, repl_num):
     # Get the Excel Application COM object
     xl = EnsureDispatch("Excel.Application")
     print_area = printing_rg
-    pdf_path = path + '\\' + str(repl_num) + '_list.pdf'
+    pdf_path = path + '\\' + str(repl_num) + '_lista_expenses.pdf'
 
     wb = xl.ActiveWorkbook
     ws = wb.ActiveSheet
