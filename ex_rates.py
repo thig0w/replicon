@@ -22,7 +22,7 @@ class Rates:
     def __get_from_url(self, url):
         headers = {'Content-type': 'application/json', 'Accept': 'text/plain'}
         response = requests.get(url, headers=headers,
-                                proxies=urllib.getproxies())
+                                proxies=urllib.request.getproxies())
         logger.debug('get_from_url %s / %s', url, response)
         if response.ok:
             json_response = json.loads(response.text)
