@@ -1,4 +1,6 @@
 language: python
+env:
+  - INSTALL_ON_LINUX=1
 python:
   - "2.7"
 cache: pip
