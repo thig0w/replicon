@@ -159,7 +159,7 @@ class Replicon:
         url = self.serviceUrl + 'ExpenseService1.svc/PutExpenseSheet'
         jsonresponse = self.__post_to_url(url, data_header)
         logger.debug('=====> %s ', json.dumps(jsonresponse))
-        self.replicon_total = sum([float(jsonresponse["d"]["entries"][a]["expenseEntry"]["incurredAmountGross"]["amount"]) for a in
+        self.replicon_total = sum([float(jsonresponse["d"]["entries"][a]["expenseEntry"]["reimbursementAmount"]["amount"]) for a in
                                    range(len(jsonresponse["d"]["entries"]))])
 
     def get_new_entry(self, entry_desc='taxi', project_cc='2084', date=datetime.today(), expense_code='6', currency='9',
