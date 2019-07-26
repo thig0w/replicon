@@ -7,6 +7,9 @@
 # WARNING! All changes made in this file will be lost!
 
 from PyQt5 import QtCore, QtGui, QtWidgets
+from CamReader import CamReader
+from PyQt5.QtGui import QPixmap
+
 
 class Ui_Dialog(object):
     def setupUi(self, Dialog):
@@ -43,6 +46,10 @@ class Ui_Dialog(object):
         Dialog.setWindowTitle(_translate("Dialog", "Dialog"))
         self.label.setText(_translate("Dialog", "TextLabel"))
 
+    #@pyqtSlot(QImage)
+    def setImage(self, image):
+        self.label.setPixmap(QPixmap.fromImage(image))
+
 
 if __name__ == "__main__" or __name__ == "__builtin__":
     import sys
@@ -51,5 +58,8 @@ if __name__ == "__main__" or __name__ == "__builtin__":
     ui = Ui_Dialog()
     ui.setupUi(Dialog)
     Dialog.show()
+    th = CamReader()
+    th.change_pixmap.connect(ui.setImage)
+    th.start()
     sys.exit(app.exec_())
 

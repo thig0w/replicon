@@ -1,3 +1,6 @@
+PyQt5
+pyzbar
+cv2
 xlwings
 reportlab
 #xlwings==0.11.8
