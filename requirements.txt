@@ -1,3 +1,5 @@
+selenium
+PIL
 PyQt5
 pyzbar
 opencv-python
