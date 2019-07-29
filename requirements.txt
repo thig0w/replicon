@@ -1,5 +1,5 @@
 selenium
-PIL
+Pillow
 PyQt5
 pyzbar
 opencv-python
