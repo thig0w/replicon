@@ -6,48 +6,78 @@
 #
 # WARNING! All changes made in this file will be lost!
 import logging
+import sys
+import threading
 
-from CamReader import CamReader
 from PyQt5 import QtCore, QtWidgets
 from PyQt5.QtGui import QPixmap
-from Sefaz import Sefaz
 from phantomjs_bin import executable_path
 from selenium import webdriver
+
+from pyqt.CamReader import CamReader
+from pyqt.Sefaz import Sefaz
 
 logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger(__name__)
 
 
-class Ui_Dialog(object):
+class UiDialog(object):
     def __init__(self):
-        MAX_THREADS = 1
         self.nfes = {}
-        self.web_drivers = []
+        self.web_driver = None
+        self.buttonBox = None
+        self.tableWidget = None
+        self.groupBox = None
+        self.label = None
+        self.lock = threading.Lock()
 
-        for i in range(MAX_THREADS):
-            self.web_drivers.append(
-                webdriver.PhantomJS(executable_path=executable_path)
-            )
+        # Initialize QT screen
+        logger.debug("Initializing interface")
+        self.app = QtWidgets.QApplication(sys.argv)
+        self.Dialog = QtWidgets.QDialog()
+        self.setup_ui(self.Dialog)
+        self.Dialog.show()
+        self.th = CamReader()
+        self.th.change_pixmap.connect(self.set_image)
+        self.th.found_qr.connect(self.set_url)
+        self.th.start()
 
-    def setupUi(self, Dialog):
-        Dialog.setObjectName("Dialog")
-        Dialog.resize(632, 262)
-        self.buttonBox = QtWidgets.QDialogButtonBox(Dialog)
+        logger.debug("Starting app")
+        self.return_code = self.app.exec_()
+
+    def __del__(self):
+        if self.web_driver is not None:
+            logger.debug("Closing web driver!")
+            self.web_driver.quit()
+
+    def setup_ui(self, dialog):
+        dialog.setObjectName("Dialog")
+        dialog.resize(632, 262)
+        self.buttonBox = QtWidgets.QDialogButtonBox(dialog)
         self.buttonBox.setGeometry(QtCore.QRect(280, 220, 341, 32))
         self.buttonBox.setOrientation(QtCore.Qt.Horizontal)
         self.buttonBox.setStandardButtons(
             QtWidgets.QDialogButtonBox.Cancel | QtWidgets.QDialogButtonBox.Ok
         )
         self.buttonBox.setObjectName("buttonBox")
-        self.tableWidget = QtWidgets.QTableWidget(Dialog)
+        self.tableWidget = QtWidgets.QTableWidget(dialog)
         self.tableWidget.setGeometry(QtCore.QRect(260, 10, 361, 201))
         # self.tableWidget.setRowCount(1)
         self.tableWidget.setColumnCount(3)
         self.tableWidget.setObjectName("tableWidget")
         self.tableWidget.horizontalHeader().setVisible(True)
         self.tableWidget.horizontalHeader().setHighlightSections(True)
+        self.tableWidget.horizontalHeader().setSectionResizeMode(
+            0, QtWidgets.QHeaderView.Stretch
+        )
+        self.tableWidget.horizontalHeader().setSectionResizeMode(
+            1, QtWidgets.QHeaderView.Stretch
+        )
+        self.tableWidget.horizontalHeader().setSectionResizeMode(
+            2, QtWidgets.QHeaderView.Stretch
+        )
         self.tableWidget.verticalHeader().setVisible(False)
-        self.groupBox = QtWidgets.QGroupBox(Dialog)
+        self.groupBox = QtWidgets.QGroupBox(dialog)
         self.groupBox.setGeometry(QtCore.QRect(10, 10, 241, 201))
         self.groupBox.setTitle("")
         self.groupBox.setObjectName("groupBox")
@@ -55,10 +85,16 @@ class Ui_Dialog(object):
         self.label.setGeometry(QtCore.QRect(10, 10, 221, 181))
         self.label.setObjectName("Camera")
 
-        self.retranslateUi(Dialog)
-        self.buttonBox.accepted.connect(Dialog.accept)
-        self.buttonBox.rejected.connect(Dialog.reject)
-        QtCore.QMetaObject.connectSlotsByName(Dialog)
+        self.retranslate_ui(dialog)
+        self.buttonBox.accepted.connect(lambda: self.accept(dialog))
+        self.buttonBox.rejected.connect(dialog.reject)
+        QtCore.QMetaObject.connectSlotsByName(dialog)
+
+    def accept(self, dialog):
+        logger.debug("Executing accept trigger")
+        print("Do something with the nfes")
+        # call replicon_ws to fill the excel and generate the images
+        dialog.accept()
 
     def populate_table(self):
         col = 0
@@ -75,33 +111,36 @@ class Ui_Dialog(object):
             self.tableWidget.setItem(col, 2, item_total_value)
             col = col + 1
 
-    def retranslateUi(self, Dialog):
+    def retranslate_ui(self, dialog):
         _translate = QtCore.QCoreApplication.translate
-        Dialog.setWindowTitle(_translate("Dialog", "Dialog"))
+        dialog.setWindowTitle(_translate("Dialog", "Dialog"))
         self.label.setText(_translate("Dialog", "Loading Camera..."))
 
     # @pyqtSlot(QImage)
-    def setImage(self, image):
+    def set_image(self, image):
         self.label.setPixmap(QPixmap.fromImage(image))
         self.populate_table()
+        if self.web_driver is None:
+            self.web_driver = webdriver.PhantomJS(executable_path=executable_path)
 
     # @pyqtSlot('QString')
     def set_url(self, url):
         if not (self.nfes.__contains__(url)):
-            self.nfes[url] = Sefaz(url, self.web_drivers.pop())
+            logger.debug("Initializing Sefaz Class for url: %s", url)
+            self.nfes[url] = Sefaz(url, self.web_driver, self.lock)
             self.nfes[url].start()
 
 
 if __name__ == "__main__" or __name__ == "__builtin__":
-    import sys
-
-    app = QtWidgets.QApplication(sys.argv)
-    Dialog = QtWidgets.QDialog()
-    ui = Ui_Dialog()
-    ui.setupUi(Dialog)
-    Dialog.show()
-    th = CamReader()
-    th.change_pixmap.connect(ui.setImage)
-    th.found_qr.connect(ui.set_url)
-    th.start()
-    sys.exit(app.exec_())
+    # app = QtWidgets.QApplication(sys.argv)
+    # Dialog = QtWidgets.QDialog()
+    # ui = Ui_Dialog()
+    # ui.setupUi(Dialog)
+    # Dialog.show()
+    # th = CamReader()
+    # th.change_pixmap.connect(ui.setImage)
+    # th.found_qr.connect(ui.set_url)
+    # th.start()
+    # sys.exit(app.exec_())
+    ui = UiDialog()
+    sys.exit(ui.return_code)

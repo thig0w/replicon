@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
-import cv2
 import logging
+
+import cv2
 import pyzbar.pyzbar as pyzbar
 from PyQt5.QtCore import Qt, QThread, pyqtSignal
 from PyQt5.QtGui import QImage
@@ -11,7 +12,7 @@ logger = logging.getLogger(__name__)
 
 class CamReader(QThread):
     change_pixmap = pyqtSignal(QImage)
-    found_qr = pyqtSignal('QString')
+    found_qr = pyqtSignal("QString")
 
     def run(self):
         cap = cv2.VideoCapture(0)
@@ -21,14 +22,14 @@ class CamReader(QThread):
             _, frame = cap.read()
             decoded_objects = pyzbar.decode(frame)
             for obj in decoded_objects:
-                cv2.putText(frame, str(obj.data), (50, 50), font, 2,
-                            (255, 0, 0), 3)
-                # print("Data", obj.data)
+                cv2.putText(frame, str(obj.data), (50, 50), font, 2, (255, 0, 0), 3)
                 self.found_qr.emit(obj.data.decode("utf-8"))
             rgb_image = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
             h, w, ch = rgb_image.shape
             bytes_per_line = ch * w
-            convert_to_qt_format = QImage(rgb_image.data, w, h, bytes_per_line, QImage.Format_RGB888)
+            convert_to_qt_format = QImage(
+                rgb_image.data, w, h, bytes_per_line, QImage.Format_RGB888
+            )
             p = convert_to_qt_format.scaled(221, 181, Qt.KeepAspectRatio)
             self.change_pixmap.emit(p.mirrored(True, False))
             # cv2.namedWindow("Frame", cv2.WINDOW_GUI_NORMAL)
@@ -38,5 +39,3 @@ class CamReader(QThread):
                 cap.release()
                 # cv2.destroyWindow("Frame")
                 break
-
-# https://www.sefaz.rs.gov.br/NFCE/NFCE-COM.aspx?p=43190693015006003210651270004470561759268442|2|1|1|4242DC7DF093B2756A42B54D5E8AAA094070A7F8
