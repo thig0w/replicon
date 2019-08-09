@@ -1,17 +1,16 @@
 # -*- coding: utf-8 -*-
 import logging
+import os
+import shutil
+import tarfile
+from datetime import timedelta, datetime
 
+import win32com.client as win32
 import xlwings as xw
+from win32com.client.gencache import EnsureDispatch
 
 import pdf_creator
-import win32com.client as win32
 from replicon import Replicon
-from datetime import timedelta
-import tarfile
-import shutil
-import os
-
-from win32com.client.gencache import EnsureDispatch
 
 # Starting logging
 logging.basicConfig(level=logging.NOTSET)
@@ -37,9 +36,15 @@ printing_rg = xw.sheets["Config"].range("D20").value
 start_date_rg = xw.sheets["Config"].range("D21").value
 repl_return_amt_rg = xw.sheets["Config"].range("D22").value
 
+# Create dictionary to get column indexes
+dispo_idx = {
+    a: int(b)
+    for col, (a, b) in enumerate(xw.sheets["Config"].range(disposition_rg).value)
+}
+
 
 def create_replicon(password, all_sheets=False):
-    logger.debug('Running create_replicon with all_sheets = %s' % (all_sheets))
+    logger.debug("Running create_replicon with all_sheets = %s" % (all_sheets))
     sheets = [xw.sheets.active] if not all_sheets else xw.sheets
 
     for sheet in sheets:
@@ -47,138 +52,216 @@ def create_replicon(password, all_sheets=False):
         if sheet.name.__eq__("Config"):
             continue
         sheet.activate()
-        logger.debug('Processisng sheet = %s' % (sheet.name))
+        logger.debug("Processisng sheet = %s" % (sheet.name))
 
         # Clean Error Cell
-        xw.Range(error_rg).value = ''
+        xw.Range(error_rg).value = ""
 
-        # Create dictionary to get column indexes
-        dispo_idx = {a: int(b) for col, (a, b) in enumerate(xw.sheets["Config"].range(disposition_rg).value)}
         # Set global exchange Rate
-        global_currency = xw.Range(currency_rg).value.split('#')[-1]
+        global_currency = xw.Range(currency_rg).value.split("#")[-1]
 
         # Get Replicon
         try:
-            repl = Replicon(userid=xw.sheets["Config"].range("D2").value, password=password,
-                            project_cc=int(xw.Range("C2").value),
-                            expenseSlug=str(int(xw.Range(repl_num_rg).value)) if xw.Range(
-                                repl_num_rg).value is not None else None,
-                            description=xw.Range(repl_descr_rg).value, isExpense=True)
+            repl = Replicon(
+                userid=xw.sheets["Config"].range("D2").value,
+                password=password,
+                project_cc=int(xw.Range("C2").value),
+                expenseSlug=str(int(xw.Range(repl_num_rg).value))
+                if xw.Range(repl_num_rg).value is not None
+                else None,
+                description=xw.Range(repl_descr_rg).value,
+                isExpense=True,
+            )
         except Exception as e:
             xw.Range(error_rg).value = e.args[0]
             continue
 
         # Check if replicon is open to overwrite the entries
         if not repl.expenseStatus.__eq__(repl.EXPENSE_STATUS_OPEN):
-            xw.Range(error_rg).value = 'This Replicon is not Open!'
+            xw.Range(error_rg).value = "This Replicon is not Open!"
             continue
 
         # Build Entries
         entries = []
         if meals_rg is not (None):
             for meals in xw.Range(meals_rg).value:
-                if meals[1] is not (None):
-                    logger.debug('Add Entry: %s - %s' % (meals[dispo_idx['DATE']], meals[dispo_idx['AMOUNT']]))
-                    entries.append(repl.get_new_entry(date=meals[dispo_idx['DATE']], amount=meals[dispo_idx['AMOUNT']],
-                                                      entry_desc=meals[dispo_idx['DESCRIPTION']],
-                                                      expense_code=meals[dispo_idx['EXPENSE CODE']].split('#')[-1],
-                                                      bill_client=meals[dispo_idx['BILLABLE']],
-                                                      reimburse_emp=meals[dispo_idx['REIMBURSE']],
-                                                      currency=meals[dispo_idx['CURRENCY']].split('#')[-1]))
+                if meals[dispo_idx["AMOUNT"]] is not (None):
+                    logger.debug(
+                        "Add Entry: %s - %s"
+                        % (meals[dispo_idx["DATE"]], meals[dispo_idx["AMOUNT"]])
+                    )
+                    entries.append(
+                        repl.get_new_entry(
+                            date=meals[dispo_idx["DATE"]],
+                            amount=meals[dispo_idx["AMOUNT"]],
+                            entry_desc=meals[dispo_idx["DESCRIPTION"]],
+                            expense_code=meals[dispo_idx["EXPENSE CODE"]].split("#")[
+                                -1
+                            ],
+                            bill_client=meals[dispo_idx["BILLABLE"]],
+                            reimburse_emp=meals[dispo_idx["REIMBURSE"]],
+                            currency=meals[dispo_idx["CURRENCY"]].split("#")[-1],
+                        )
+                    )
 
         if transp_rg is not (None):
             for transp in xw.Range(transp_rg).value:
-                if transp[1] is not (None):
-                    logger.debug('Add Entry: %s - %s' % (transp[dispo_idx['DATE']], transp[dispo_idx['AMOUNT']]))
+                if transp[dispo_idx["AMOUNT"]] is not (None):
+                    logger.debug(
+                        "Add Entry: %s - %s"
+                        % (transp[dispo_idx["DATE"]], transp[dispo_idx["AMOUNT"]])
+                    )
                     entries.append(
-                        repl.get_new_entry(date=transp[dispo_idx['DATE']], amount=transp[dispo_idx['AMOUNT']],
-                                           entry_desc=transp[dispo_idx['DESCRIPTION']],
-                                           expense_code=transp[dispo_idx['EXPENSE CODE']].split('#')[-1],
-                                           bill_client=transp[dispo_idx['BILLABLE']],
-                                           reimburse_emp=transp[dispo_idx['REIMBURSE']],
-                                           currency=transp[dispo_idx['CURRENCY']].split('#')[-1]))
+                        repl.get_new_entry(
+                            date=transp[dispo_idx["DATE"]],
+                            amount=transp[dispo_idx["AMOUNT"]],
+                            entry_desc=transp[dispo_idx["DESCRIPTION"]],
+                            expense_code=transp[dispo_idx["EXPENSE CODE"]].split("#")[
+                                -1
+                            ],
+                            bill_client=transp[dispo_idx["BILLABLE"]],
+                            reimburse_emp=transp[dispo_idx["REIMBURSE"]],
+                            currency=transp[dispo_idx["CURRENCY"]].split("#")[-1],
+                        )
+                    )
         if parking_rg is not (None):
             parking = xw.Range(parking_rg).value
-            if parking[1] is not (None):
-                logger.debug('Add Entry: %s - %s' % (parking[dispo_idx['DATE']], parking[dispo_idx['AMOUNT']]))
-                entries.append(repl.get_new_entry(date=parking[dispo_idx['DATE']], amount=parking[dispo_idx['AMOUNT']],
-                                                  entry_desc=parking[dispo_idx['DESCRIPTION']],
-                                                  expense_code=parking[dispo_idx['EXPENSE CODE']].split('#')[-1],
-                                                  bill_client=parking[dispo_idx['BILLABLE']],
-                                                  reimburse_emp=parking[dispo_idx['REIMBURSE']],
-                                                  currency=parking[dispo_idx['CURRENCY']].split('#')[-1]))
+            if parking[dispo_idx["AMOUNT"]] is not (None):
+                logger.debug(
+                    "Add Entry: %s - %s"
+                    % (parking[dispo_idx["DATE"]], parking[dispo_idx["AMOUNT"]])
+                )
+                entries.append(
+                    repl.get_new_entry(
+                        date=parking[dispo_idx["DATE"]],
+                        amount=parking[dispo_idx["AMOUNT"]],
+                        entry_desc=parking[dispo_idx["DESCRIPTION"]],
+                        expense_code=parking[dispo_idx["EXPENSE CODE"]].split("#")[-1],
+                        bill_client=parking[dispo_idx["BILLABLE"]],
+                        reimburse_emp=parking[dispo_idx["REIMBURSE"]],
+                        currency=parking[dispo_idx["CURRENCY"]].split("#")[-1],
+                    )
+                )
+
+        # Print line deprecated - Plan to remove it
         if print_rg is not (None):
             printing = xw.Range(print_rg).value
-            if printing[1] is not (None):
+            if printing[dispo_idx["AMOUNT"]] is not (None):
                 base64_pdf = (None, None)  # pdf_creator.to_base64(pdf_path)
-                logger.debug('Add Entry: %s - %s' % (printing[dispo_idx['DATE']], printing[dispo_idx['AMOUNT']]))
+                logger.debug(
+                    "Add Entry: %s - %s"
+                    % (printing[dispo_idx["DATE"]], printing[dispo_idx["AMOUNT"]])
+                )
                 entries.append(
-                    repl.get_new_entry(date=printing[dispo_idx['DATE']], amount=printing[dispo_idx['AMOUNT']],
-                                       entry_desc=printing[dispo_idx['DESCRIPTION']],
-                                       project_cc=xw.Range("C2").value,
-                                       expense_code=printing[dispo_idx['EXPENSE CODE']].split('#')[-1],
-                                       bill_client=printing[dispo_idx['BILLABLE']],
-                                       reimburse_emp=printing[dispo_idx['REIMBURSE']], mime_type=base64_pdf[0],
-                                       base64_file=base64_pdf[1],
-                                       currency=printing[dispo_idx['CURRENCY']].split('#')[-1]))
+                    repl.get_new_entry(
+                        date=printing[dispo_idx["DATE"]],
+                        amount=printing[dispo_idx["AMOUNT"]],
+                        entry_desc=printing[dispo_idx["DESCRIPTION"]],
+                        project_cc=xw.Range("C2").value,
+                        expense_code=printing[dispo_idx["EXPENSE CODE"]].split("#")[-1],
+                        bill_client=printing[dispo_idx["BILLABLE"]],
+                        reimburse_emp=printing[dispo_idx["REIMBURSE"]],
+                        mime_type=base64_pdf[0],
+                        base64_file=base64_pdf[1],
+                        currency=printing[dispo_idx["CURRENCY"]].split("#")[-1],
+                    )
+                )
 
         repl.add_expense_entries(entries, global_currency)
         # Record replicon number to the sheet
-        xw.Range(repl_num_rg).value = repl.expenseUri.split(':')[-1]
+        xw.Range(repl_num_rg).value = repl.expenseUri.split(":")[-1]
         xw.Range(repl_return_amt_rg).value = repl.replicon_total
 
 
 def send_mail():
-    logger.debug('Starting send_mail')
+    logger.debug("Starting send_mail")
     if xw.sheets.active.name.__eq__("Config"):
         return
     # Clean Error Cell
-    xw.Range(error_rg).value = ''
+    xw.Range(error_rg).value = ""
 
-    if xw.Range(images_path_rg).value is None or xw.Range(repl_num_rg).value is None or not os.path.exists(
-            xw.Range(images_path_rg).value):
-        xw.Range(error_rg).value = 'Please validate if the replicon was generated or if the path to images exists!'
+    if (
+        xw.Range(images_path_rg).value is None
+        or xw.Range(repl_num_rg).value is None
+        or not os.path.exists(xw.Range(images_path_rg).value)
+    ):
+        xw.Range(
+            error_rg
+        ).value = "Please validate if the replicon was generated or if the path to images exists!"
         return
 
     # check if images path contains the replicon number to rename it
     if not xw.Range(images_path_rg).value.__contains__(xw.Range(repl_num_rg).value):
-        new_path = '\\'.join(xw.Range(images_path_rg).value.split("\\")[:-1]) + '\\' + xw.Range(repl_num_rg).value
-        logger.debug('Renaming folder %s to %s' % (xw.Range(images_path_rg).value, new_path))
+        new_path = (
+            "\\".join(xw.Range(images_path_rg).value.split("\\")[:-1])
+            + "\\"
+            + xw.Range(repl_num_rg).value
+        )
+        logger.debug(
+            "Renaming folder %s to %s" % (xw.Range(images_path_rg).value, new_path)
+        )
         shutil.move(xw.Range(images_path_rg).value, new_path)
         xw.Range(images_path_rg).value = new_path
 
-    photo_pdf_path = pdf_creator.create_pdf(xw.Range(images_path_rg).value, xw.Range(repl_num_rg).value)
-    list_pdf_path = generate_xl_pdf(xw.Range(images_path_rg).value, xw.Range(repl_num_rg).value)
+    photo_pdf_path = pdf_creator.create_pdf(
+        xw.Range(images_path_rg).value, xw.Range(repl_num_rg).value
+    )
+    list_pdf_path = generate_xl_pdf(
+        xw.Range(images_path_rg).value, xw.Range(repl_num_rg).value
+    )
 
-    logger.debug('Starting Mail creation')
-    outlook = win32.Dispatch('outlook.application')
+    logger.debug("Starting Mail creation")
+    outlook = win32.Dispatch("outlook.application")
     mail = outlook.CreateItem(0)
-    mail.To = xw.sheets["Config"].range(logic_mail_rg).value + ';' + (
-        xw.sheets["Config"].range(manager_mail_rg).value if xw.sheets["Config"].range(
-            manager_mail_rg).value is not None else '')
-    mail.Subject = xw.sheets["Config"].range(user_name_rg).value + ' - ' + xw.Range(repl_num_rg).value + ' - ' + \
-                   xw.Range(client_info_rg).value + ' Expense Sheet (' + \
-                   str(int(xw.Range("C2").value)) + ') - ' + \
-                   xw.Range(start_date_rg).value.strftime('%d/%m/%Y') + ' - ' + \
-                   (xw.Range(start_date_rg).value + timedelta(days=5)).strftime('%d/%m/%Y')
-    mail.HtmlBody = 'Seguem detalhes em anexo'
+    mail.To = (
+        xw.sheets["Config"].range(logic_mail_rg).value
+        + ";"
+        + (
+            xw.sheets["Config"].range(manager_mail_rg).value
+            if xw.sheets["Config"].range(manager_mail_rg).value is not None
+            else ""
+        )
+    )
+    mail.Subject = (
+        xw.sheets["Config"].range(user_name_rg).value
+        + " - "
+        + xw.Range(repl_num_rg).value
+        + " - "
+        + xw.Range(client_info_rg).value
+        + " Expense Sheet ("
+        + str(int(xw.Range("C2").value))
+        + ") - "
+        + xw.Range(start_date_rg).value.strftime("%d/%m/%Y")
+        + " - "
+        + (xw.Range(start_date_rg).value + timedelta(days=5)).strftime("%d/%m/%Y")
+    )
+    mail.HtmlBody = "Seguem detalhes em anexo"
     try:
-        logger.debug('attaching mail = %s' % (photo_pdf_path))
-        logger.debug('attaching mail = %s' % (list_pdf_path))
+        logger.debug("attaching mail = %s" % (photo_pdf_path))
+        logger.debug("attaching mail = %s" % (list_pdf_path))
         mail.Attachments.Add(photo_pdf_path)
         mail.Attachments.Add(list_pdf_path)
     except Exception as e:
-        xw.Range(error_rg).value = 'File not found!'
+        xw.Range(error_rg).value = "File not found!"
         return
     mail.Display(False)
 
     # copy replicon list to main folder
-    logger.debug('Copying pdf list from %s to %s' % (
-        list_pdf_path, os.path.dirname(os.path.dirname(xw.Range(images_path_rg).value))))
+    logger.debug(
+        "Copying pdf list from %s to %s"
+        % (
+            list_pdf_path,
+            os.path.dirname(os.path.dirname(xw.Range(images_path_rg).value)),
+        )
+    )
     shutil.copy(list_pdf_path, os.path.dirname(xw.Range(images_path_rg).value))
 
     tar = tarfile.open(xw.Range(images_path_rg).value + "ok.tgz", "w:gz")
-    tar.add(xw.Range(images_path_rg).value, filter=reset, arcname=xw.Range(images_path_rg).value.split("\\")[-1])
+    tar.add(
+        xw.Range(images_path_rg).value,
+        filter=reset,
+        arcname=xw.Range(images_path_rg).value.split("\\")[-1],
+    )
     tar.close()
     shutil.rmtree(xw.Range(images_path_rg).value, ignore_errors=True)
 
@@ -193,7 +276,7 @@ def generate_xl_pdf(path, repl_num):
     # Get the Excel Application COM object
     xl = EnsureDispatch("Excel.Application")
     print_area = printing_rg
-    pdf_path = path + '\\' + str(repl_num) + '_lista_expenses.pdf'
+    pdf_path = path + "\\" + str(repl_num) + "_lista_expenses.pdf"
 
     wb = xl.ActiveWorkbook
     ws = wb.ActiveSheet
@@ -214,8 +297,52 @@ def generate_xl_pdf(path, repl_num):
     return pdf_path
 
 
+def fill_xl_from_list(list):
+    xw.Range(error_rg).value = ""
+    # Convert to datetime
+    for i in list:
+        i[0] = datetime.strptime(i[0], "%d/%m/%Y")
+
+    # Sort the list
+    list.sort(key=lambda x: x[0])
+
+    if list[0][0] < xw.Range(start_date_rg).value:
+        xw.Range(error_rg).value = (
+            "Scanned NFs Not in Excel Range, please change the value on Cell: "
+            + start_date_rg
+        )
+        xw.Range(start_date_rg).select()
+
+    if list[-1][0] > xw.Range(meals_rg).rows[-1][dispo_idx["DATE"]].value:
+        xw.Range(error_rg).value = (
+            "Scanned NFs Not in Excel Range, please check last date: " + start_date_rg
+        )
+        xw.Range(meals_rg).rows[-1][dispo_idx["DATE"]].select()
+
+    # watchdog to prevent looping too much
+    last_visited = 0
+    for i in list:
+        if meals_rg is not None:
+            for meals in xw.Range(meals_rg).rows[last_visited:]:
+                if (
+                    meals[dispo_idx["DATE"]].value.__eq__(i[0])
+                    and meals[dispo_idx["AMOUNT"]].value is None
+                ):
+                    meals[dispo_idx["AMOUNT"]].value = float(i[1].replace(",", "."))
+                    break
+            last_visited = last_visited + 1
+
+
 if __name__ == "__main__" or __name__ == "__builtin__":
-    create_replicon('', False)
+    # create_replicon('', False)
     # send_mail()
     # generate_xl_pdf('C:\Users\LOGIC\Dropbox\Trabalho\Replicon', '1234')
     # generate_xl_pdf()
+    fill_xl_from_list(
+        [
+            ["07/08/2019", "20,00"],
+            ["07/08/2019", "21,00"],
+            ["08/08/2019", "30,00"],
+            ["09/08/2019", "20,00"],
+        ]
+    )

@@ -16,7 +16,7 @@ logger = logging.getLogger(__name__)
 class Sefaz(QThread):
     def __init__(self, url, driver, lock):
         super().__init__()
-        key = re.match(".*=([0-9]{44}\|[0-9]\|[0-9]\|[0-9]\|[A-Z0-9]{40})", url.upper())
+        key = re.match(".*P=(.*)", url.upper())
         self.key = key.groups()[0]
         logger.debug("URL: %s", key.groups()[0])
         self.url = (

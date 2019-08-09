@@ -14,6 +14,7 @@ from PyQt5.QtGui import QPixmap
 from phantomjs_bin import executable_path
 from selenium import webdriver
 
+import replicon_ws
 from pyqt.CamReader import CamReader
 from pyqt.Sefaz import Sefaz
 
@@ -92,7 +93,10 @@ class UiDialog(object):
 
     def accept(self, dialog):
         logger.debug("Executing accept trigger")
-        print("Do something with the nfes")
+        list = []
+        for i in self.nfes:
+            list.append([self.nfes[i].date, self.nfes[i].total_value])
+        replicon_ws.fill_xl_from_list(list)
         # call replicon_ws to fill the excel and generate the images
         dialog.accept()
 
