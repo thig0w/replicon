@@ -297,6 +297,19 @@ def generate_xl_pdf(path, repl_num):
     return pdf_path
 
 
+def clean_xl():
+    if meals_rg is not (None):
+        for meals in xw.Range(meals_rg).rows:
+            meals[dispo_idx["AMOUNT"]].value = None
+
+    if transp_rg is not (None):
+        for transp in xw.Range(transp_rg).rows:
+            transp[dispo_idx["AMOUNT"]].value = None
+
+    if parking_rg is not (None):
+        xw.Range(parking_rg)[dispo_idx["AMOUNT"]].value = None
+
+
 def fill_xl_from_list(list):
     xw.Range(error_rg).value = ""
     # Convert to datetime
