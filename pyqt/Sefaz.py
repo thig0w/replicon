@@ -17,12 +17,16 @@ class Sefaz(QThread):
     def __init__(self, url, driver, lock):
         super().__init__()
         key = re.match(".*P=(.*)", url.upper())
-        self.key = key.groups()[0]
-        logger.debug("URL: %s", key.groups()[0])
-        self.url = (
-            "https://www.sefaz.rs.gov.br/ASP/AAE_ROOT/NFE/SAT-WEB-NFE-NFC_QRCODE_1.asp?p="
-            + self.key
-        )
+        try:
+            self.key = key.groups()[0]
+        except AttributeError:
+            self.url = url
+        else:
+            logger.debug("URL: %s", key.groups()[0])
+            self.url = (
+                "https://www.sefaz.rs.gov.br/ASP/AAE_ROOT/NFE/SAT-WEB-NFE-NFC_QRCODE_1.asp?p="
+                + self.key
+            )
         self.x = None
         self.y = None
         self.width = None

@@ -173,21 +173,29 @@ def create_replicon(password, all_sheets=False):
         xw.Range(repl_return_amt_rg).value = repl.replicon_total
 
 
-def send_mail():
-    logger.debug("Starting send_mail")
-    if xw.sheets.active.name.__eq__("Config"):
-        return
+def images_path_exists(replicon_needed=True):
     # Clean Error Cell
     xw.Range(error_rg).value = ""
 
     if (
         xw.Range(images_path_rg).value is None
-        or xw.Range(repl_num_rg).value is None
+        or (xw.Range(repl_num_rg).value is None and replicon_needed)
         or not os.path.exists(xw.Range(images_path_rg).value)
     ):
         xw.Range(
             error_rg
         ).value = "Please validate if the replicon was generated or if the path to images exists!"
+        xw.Range(error_rg).select()
+        return False
+    return True
+
+
+def send_mail():
+    logger.debug("Starting send_mail")
+    if xw.sheets.active.name.__eq__("Config"):
+        return
+
+    if not images_path_exists():
         return
 
     # check if images path contains the replicon number to rename it
@@ -348,6 +356,19 @@ def fill_xl_from_list(list):
                     meals[dispo_idx["AMOUNT"]].value = float(i[1].replace(",", "."))
                     break
             last_visited = last_visited + 1
+
+
+def init_camera():
+    from pyqt.qrcode import UiDialog
+
+    xw.Range(error_rg).value = ""
+    if not images_path_exists(False):
+        return
+    try:
+        ui = UiDialog()
+    except:
+        xw.Range(error_rg).value = "Unexpected error: {}".format(sys.exc_info()[0])
+    del ui
 
 
 if __name__ == "__main__" or __name__ == "__builtin__":

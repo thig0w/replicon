@@ -103,6 +103,8 @@ def create_pdf_panel(folder_root):
     logger.debug("Starting nfs pdf panel creation")
     # nf files
     nfs = glob(folder_root + "\\sfnf*")
+    if nfs.__len__() == 0:
+        return
 
     # empty output PDF
     final_doc = fitz.open()

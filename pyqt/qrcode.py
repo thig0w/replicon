@@ -30,7 +30,8 @@ class UiDialog(object):
         self.tableWidget = None
         self.groupBox = None
         self.label = None
-        self.lock = threading.Lock()
+        self.webdriver_lock = threading.Lock()
+        self.list_lock = threading.Lock()
 
         # Initialize QT screen
         logger.debug("Initializing interface")
@@ -130,10 +131,12 @@ class UiDialog(object):
 
     # @pyqtSlot('QString')
     def set_url(self, url):
-        if not (self.nfes.__contains__(url)):
+        self.list_lock.acquire()
+        if not (self.nfes.__contains__(url)) and url is not None:
             logger.debug("Initializing Sefaz Class for url: %s", url)
-            self.nfes[url] = Sefaz(url, self.web_driver, self.lock)
+            self.nfes[url] = Sefaz(url, self.web_driver, self.webdriver_lock)
             self.nfes[url].start()
+        self.list_lock.release()
 
 
 if __name__ == "__main__" or __name__ == "__builtin__":
