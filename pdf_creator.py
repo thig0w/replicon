@@ -100,6 +100,7 @@ def create_pdf(folder_root, replicon_no):
 
 
 def create_pdf_panel(folder_root):
+    logger.debug("Starting nfs pdf panel creation")
     # nf files
     nfs = glob(folder_root + "\\sfnf*")
 
@@ -132,8 +133,8 @@ def create_pdf_panel(folder_root):
     page_count = 0
 
     for infile in nfs:
+        logger.debug("Opening file {}".format(infile))
         src = fitz.open(infile)
-
         # now copy input pages to output
         for spage in src:
             if page_count % 6 == 0:  # create new output page
@@ -145,14 +146,18 @@ def create_pdf_panel(folder_root):
                 spage.number,
             )  # input file page number
             page_count += 1
+        logger.debug("Closing file {}".format(infile))
         src.close()
 
     # By all means, save new file using garbage collection and compression
+    logger.debug("Saving 6up file")
     final_doc.save("{}\\6up.pdf".format(folder_root), garbage=4, deflate=True)
 
     # Move all files to originals dir, except the merged pdf
+    logger.debug("Moving original nf files")
     for i in nfs:
         shutil.move(i, folder_root + "\\" + original_files_dirname + "\\")
+    logger.debug("Starting nfs pdf panel creation")
 
 
 def to_base64(fpath):
