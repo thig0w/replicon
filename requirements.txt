@@ -1,4 +1,5 @@
 selenium
+PyMuPDF
 Pillow
 PyQt5
 pyzbar

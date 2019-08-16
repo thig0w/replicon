@@ -96,6 +96,7 @@ class UiDialog(object):
         list = []
         for i in self.nfes:
             list.append([self.nfes[i].date, self.nfes[i].total_value])
+            self.nfes[i].save_image(replicon_ws.get_repl_folder())
         replicon_ws.fill_xl_from_list(list)
         # call replicon_ws to fill the excel and generate the images
         dialog.accept()

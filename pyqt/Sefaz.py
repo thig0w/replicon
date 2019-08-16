@@ -36,9 +36,13 @@ class Sefaz(QThread):
     def run(self):
         # Locking to prevent the use of the web driver by another thread
         logger.debug("Fetching url: %s", self.url)
+        resize_percent = 60
         self.lock.acquire()
         self.driver.set_window_size(1024, 768)
         self.driver.get(self.url)  # whatever reachable url
+        self.driver.execute_script(
+            "document.body.style.zoom='{}%'".format(resize_percent)
+        )
         WebDriverWait(self.driver, 10).until(
             ec.presence_of_element_located((By.XPATH, '//*[@id="respostaWS"]'))
         )
@@ -56,8 +60,8 @@ class Sefaz(QThread):
         size = element.size
         self.x = location["x"]
         self.y = location["y"]
-        self.width = location["x"] + size["width"]
-        self.height = location["y"] + size["height"]
+        self.width = location["x"] + (size["width"] * (resize_percent / 100))
+        self.height = location["y"] + (size["height"] * (resize_percent / 100))
 
         self.screen = self.driver.get_screenshot_as_png()
         self.lock.release()
@@ -69,11 +73,15 @@ class Sefaz(QThread):
             self.url,
         )
 
-    def save_image(self, path):
+    def save_image(self, path, filetype="pdf"):
         logger.debug("Creating png file!")
         if self.screen is not None:
             im = Image.open(io.BytesIO(self.screen))
             im = im.crop((int(self.x), int(self.y), int(self.width), int(self.height)))
+
+            # PDF does not has 4 color channels, converting to 3 channels
+            if im.mode == "RGBA" and filetype == "pdf":
+                im = im.convert("RGB")
 
             ordering_date = (
                 self.date.split("/")[-1]
@@ -86,11 +94,11 @@ class Sefaz(QThread):
                 + ordering_date
                 + "_"
                 + self.key.split("|")[-1][:10]
-                + ".png"
+                + ".{}".format(filetype)
             )
             logger.debug("Creating png file to %s", filename)
 
-            im.save(filename)
+            im.save(filename, quality=95)
         else:
             raise Exception("No image was captured!")
 

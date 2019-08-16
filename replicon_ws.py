@@ -310,6 +310,10 @@ def clean_xl():
         xw.Range(parking_rg)[dispo_idx["AMOUNT"]].value = None
 
 
+def get_repl_folder():
+    return xw.Range(images_path_rg).value
+
+
 def fill_xl_from_list(list):
     xw.Range(error_rg).value = ""
     # Convert to datetime
@@ -348,14 +352,14 @@ def fill_xl_from_list(list):
 
 if __name__ == "__main__" or __name__ == "__builtin__":
     # create_replicon('', False)
-    # send_mail()
+    send_mail()
     # generate_xl_pdf('C:\Users\LOGIC\Dropbox\Trabalho\Replicon', '1234')
     # generate_xl_pdf()
-    fill_xl_from_list(
-        [
-            ["07/08/2019", "20,00"],
-            ["07/08/2019", "21,00"],
-            ["08/08/2019", "30,00"],
-            ["09/08/2019", "20,00"],
-        ]
-    )
+    # fill_xl_from_list(
+    #     [
+    #         ["07/08/2019", "20,00"],
+    #         ["07/08/2019", "21,00"],
+    #         ["08/08/2019", "30,00"],
+    #         ["09/08/2019", "20,00"],
+    #     ]
+    # )
