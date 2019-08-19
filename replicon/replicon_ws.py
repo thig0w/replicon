@@ -9,7 +9,7 @@ import win32com.client as win32
 import xlwings as xw
 from win32com.client.gencache import EnsureDispatch
 
-import pdf_creator
+from replicon.utils import pdf_creator
 from replicon import Replicon
 
 # Starting logging
@@ -359,7 +359,7 @@ def fill_xl_from_list(list):
 
 
 def init_camera():
-    from pyqt.qrcode import UiDialog
+    from replicon.pyqt.qrcode import UiDialog
 
     xw.Range(error_rg).value = ""
     if not images_path_exists(False):
