@@ -317,6 +317,9 @@ def clean_xl():
     if parking_rg is not (None):
         xw.Range(parking_rg)[dispo_idx["AMOUNT"]].value = None
 
+    if repl_num_rg is not None:
+        xw.Range(repl_num_rg).value = None
+
 
 def get_repl_folder():
     return xw.Range(images_path_rg).value
