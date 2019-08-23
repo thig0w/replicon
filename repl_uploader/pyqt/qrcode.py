@@ -14,9 +14,9 @@ from PyQt5.QtGui import QPixmap
 from phantomjs_bin import executable_path
 from selenium import webdriver
 
-from replicon import replicon_ws
-from replicon.pyqt.CamReader import CamReader
-from replicon.pyqt.Sefaz import Sefaz
+from repl_uploader import replicon_ws
+from repl_uploader.pyqt.CamReader import CamReader
+from repl_uploader.pyqt.Sefaz import Sefaz
 
 logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger(__name__)

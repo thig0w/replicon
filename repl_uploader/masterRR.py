@@ -2,8 +2,8 @@
 import logging
 import xlwings as xw
 
-from replicon import Replicon
-from replicon.utils.ex_rates import Rates
+from repl_uploader import Replicon
+from repl_uploader.utils.ex_rates import Rates
 
 # Starting logging
 logging.basicConfig(level=logging.NOTSET)
