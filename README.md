@@ -18,9 +18,9 @@ Simplify my expenses reports
 
     c) Add it if necessary
 
-3. Open a command window and install the required python modules using the following commands:
+3. Open a command window and install the required python modules using the following command:
 ```
-pip install xlwings reportlab PyPDF2 simplejson requests pypiwin32 pdfkit isoweek
+pip install repl_uploader
 ```
 
 4. Install de xlwings addon on excel typing the following command on a command window:
@@ -35,6 +35,11 @@ xlwings addin install
 	b) Go to settings (engine wheel - upper right corner)
 	
 	c) Change "Project Name Format" to "Name - Code"
+
+6. When a new release is available, upgrade with the following command:
+```
+pip install --upgrade repl_uploader
+```
 
 ## API Reference
 
