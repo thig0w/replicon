@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 import setuptools
+import repl_uploader
 
 with open("README.md", "r") as fh:
     long_description = fh.read()
@@ -10,7 +11,7 @@ with open("requirements.txt") as f:
 
 setuptools.setup(
     name="repl_uploader",
-    version="2.0.1",
+    version=repl_uploader.VERSION,
     author="Thiago Weidman",
     author_email="tw@weidman.com.br",
     description="Collection of scripts to upload Replicon expenses",
