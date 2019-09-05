@@ -1,13 +1,14 @@
 # -*- coding: utf-8 -*-
+import csv
 import logging
 import time
-import urllib.request, urllib.parse, urllib.error
+import urllib.error
+import urllib.parse
+import urllib.request
 from datetime import datetime
 
 import requests
 import simplejson as json
-import csv
-import pdfkit
 
 logging.basicConfig(level=logging.NOTSET)
 logger = logging.getLogger(__name__)
@@ -49,9 +50,6 @@ class Replicon:
         self.useruri = jsonresponse["d"]
 
         if isExpense:
-            # get project uri
-            self.set_project_uri_from_cc(project_cc)
-
             # get expense status
             if self.expenseSlug is not None:
                 # Get expense sheet uri to edit it
@@ -72,6 +70,9 @@ class Replicon:
             else:
                 self.create_new_expense(description)
                 self.expenseStatus = "urn:replicon:approval-status:open"
+
+            # get project uri
+            self.set_project_uri_from_cc(project_cc, self.expenseUri)
 
     def __get_from_url(self, url):
         headers = {"Content-type": "application/json", "Accept": "text/plain"}
@@ -225,20 +226,33 @@ class Replicon:
         }
         return entry
 
-    def set_project_uri_from_cc(self, project_cc=2058):
-        url = self.serviceUrl + "ProjectService1.svc/GetAllProjects"
-        data = {}
+    def set_project_uri_from_cc(
+        self,
+        project_cc=2058,
+        expense_uri="urn:replicon-tenant:logicinfo-ref:expense-sheet:93532",
+    ):
+        url = (
+            self.serviceUrl
+            + "ExpenseService1.svc/GetPageOfProjectsAvailableForExpenseEntryFilteredByClientAndTextSearch"
+        )
+        data = {
+            "page": 1,
+            "pageSize": 10,
+            "expenseSheetUri": expense_uri,
+            "textSearch": {
+                "queryText": "({})".format(project_cc),
+                "searchInDisplayText": True,
+            },
+        }
         jsonresponse = self.__post_to_url(url, data)
-        for project in jsonresponse["d"]:
-            if project["displayText"].__contains__(str(project_cc)):
-                logger.debug(
-                    "set_project_uri: %s / %s / %s ",
-                    project_cc,
-                    project["displayText"],
-                    project["uri"],
+        try:
+            self.project_uri = jsonresponse["d"][0]["project"]["uri"]
+        except IndexError:
+            raise Exception(
+                "Project {} does not exist or you don`t have access to it.".format(
+                    project_cc
                 )
-                break
-        self.project_uri = project["uri"]
+            )
 
     def generate_report(self, reportUri):
         url = self.serviceUrl + "ReportService1.svc/GenerateReport"
@@ -258,7 +272,7 @@ class Replicon:
 
 if __name__ == "__main__" or __name__ == "__builtin__":
     # getpass.win_getpass()
-    repl = Replicon("logicinfo", "tweidman", "pass", 2058)
+    repl = Replicon("logicinfo", "tweidman", "pass", 2107)
     # repl = Replicon('logicinfo', 'tweidman', 'pass', 2058, description='Teste')
     #
     # print repl.useruri
