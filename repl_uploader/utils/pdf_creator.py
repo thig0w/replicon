@@ -34,7 +34,7 @@ def create_pdf(folder_root, replicon_no):
         os.mkdir(folder_root + "\\" + original_files_dirname)
 
     # Merge NF files
-    # create_pdf_panel(folder_root)
+    create_pdf_panel(folder_root)
 
     doc = SimpleDocTemplate(folder_root + "\\" + photo_pdf_filename, pagesize=A4)
     parts = []
@@ -132,12 +132,13 @@ def create_pdf_panel(folder_root):
             )  # input file page number
             page_count += 1
         logger.debug("Closing file {}".format(infile))
-        src.close()
 
     # By all means, save new file using garbage collection and compression
     logger.debug("Saving 6up file")
     final_doc.save("{}\\6up.pdf".format(folder_root), garbage=4, deflate=True)
-    # final_doc.save("{}\\6up.pdf".format(folder_root))
+
+    final_doc.close()
+    src.close()
 
     # Move all files to originals dir, except the merged pdf
     logger.debug("Moving original nf files")
