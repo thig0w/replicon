@@ -9,8 +9,8 @@ import win32com.client as win32
 import xlwings as xw
 from win32com.client.gencache import EnsureDispatch
 
-from repl_uploader.utils import pdf_creator
 from repl_uploader import Replicon
+from repl_uploader.utils import pdf_creator
 
 # Starting logging
 logging.basicConfig(level=logging.NOTSET)
@@ -374,8 +374,14 @@ def init_camera():
     del ui
 
 
+def get_version():
+    import repl_uploader
+
+    xw.Range("A1").value = repl_uploader.VERSION
+
+
 if __name__ == "__main__" or __name__ == "__builtin__":
-    # create_replicon('', False)
+    # create_replicon('Senhacomplexa2', False)
     send_mail()
     # generate_xl_pdf('C:\Users\LOGIC\Dropbox\Trabalho\Replicon', '1234')
     # generate_xl_pdf()

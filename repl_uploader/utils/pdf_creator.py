@@ -34,68 +34,51 @@ def create_pdf(folder_root, replicon_no):
         os.mkdir(folder_root + "\\" + original_files_dirname)
 
     # Merge NF files
-    create_pdf_panel(folder_root)
+    # create_pdf_panel(folder_root)
 
     doc = SimpleDocTemplate(folder_root + "\\" + photo_pdf_filename, pagesize=A4)
     parts = []
-    images_ext = (".jpg", ".JPG", ".jpeg", ".png", ".PNG")
+    images_ext = ("JPG", "JPEG", "PNG")
 
-    for dirpath, dirnames, filenames in os.walk(folder_root):
-        logger.debug("dirpath: %s - filenames: %s" % (dirpath, filenames))
-        for filename in filenames:
-            if filename.lower().endswith(images_ext):
-                filepath = os.path.join(dirpath, filename)
-                logger.debug(
-                    "Merge Images - filename: %s - filepath: %s" % (filename, filepath)
-                )
-                parts.append(
-                    Image(
-                        filepath,
-                        width=doc.width - 12,
-                        height=doc.height - 12,
-                        kind="proportional",
-                    )
-                )
-                parts.append(PageBreak())
-
-        # do not interate on subfolders
-        break
+    for filename in filter(
+        lambda x: x.split(".")[-1].upper() in images_ext,
+        glob(folder_root + "\\*", recursive=False),
+    ):
+        logger.debug("Merge Images - filename: {} ".format(filename))
+        parts.append(
+            Image(
+                filename,
+                width=doc.width - 12,
+                height=doc.height - 12,
+                kind="proportional",
+            )
+        )
+        parts.append(PageBreak())
     doc.build(parts)
 
     pdf_merger = PdfFileMerger(strict=False)
-    for dirpath, dirnames, filenames in os.walk(folder_root):
-        for filename in filenames:
-            if filename.lower().endswith(".pdf"):
-                filepath = os.path.join(dirpath, filename)
-                logger.debug(
-                    "Merge PDF - filename: %s - filepath: %s" % (filename, filepath)
-                )
-                with open(filepath, "rb") as f:
-                    pdf_merger.append(PdfFileReader(f, strict=False))
-
-        # do not interate on subfolders
-        break
+    for filename in glob(folder_root + "\\*.pdf", recursive=False):
+        logger.debug("Merge PDF - filename: {}".format(filename))
+        with open(filename, "rb") as f:
+            pdf_merger.append(PdfFileReader(f, strict=False))
 
     pdf_merger.write(folder_root + "\\" + merged_pdf_filename)
     logger.debug("PDF created")
 
     # Move all files to originals dir, except the merged pdf
-    for f in [
-        lst
-        for lst in os.listdir(folder_root)
-        if lst not in (merged_pdf_filename, original_files_dirname)
-    ]:
+    for f in filter(
+        lambda x: x
+        not in (
+            folder_root + "\\" + merged_pdf_filename,
+            folder_root + "\\" + original_files_dirname,
+        ),
+        glob(folder_root + "\\*", recursive=False),
+    ):
         logger.debug(
             "Move file %s to %s"
-            % (
-                folder_root + "\\" + f,
-                folder_root + "\\" + original_files_dirname + "\\" + f,
-            )
+            % (f, folder_root + "\\" + original_files_dirname + "\\")
         )
-        shutil.move(
-            folder_root + "\\" + f,
-            folder_root + "\\" + original_files_dirname + "\\" + f,
-        )
+        shutil.move(f, folder_root + "\\" + original_files_dirname + "\\")
     return folder_root + "\\" + merged_pdf_filename
 
 
@@ -154,6 +137,7 @@ def create_pdf_panel(folder_root):
     # By all means, save new file using garbage collection and compression
     logger.debug("Saving 6up file")
     final_doc.save("{}\\6up.pdf".format(folder_root), garbage=4, deflate=True)
+    # final_doc.save("{}\\6up.pdf".format(folder_root))
 
     # Move all files to originals dir, except the merged pdf
     logger.debug("Moving original nf files")
