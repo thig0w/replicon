@@ -143,7 +143,7 @@ def create_replicon(password, all_sheets=False):
                     )
                 )
 
-        # Print line deprecated - Plan to remove it
+        # TODO: Print line deprecated - Plan to remove it
         if print_rg is not (None):
             printing = xw.Range(print_rg).value
             if printing[dispo_idx["AMOUNT"]] is not (None):
@@ -308,17 +308,17 @@ def generate_xl_pdf(path, repl_num):
 def clean_xl():
     if meals_rg is not (None):
         for meals in xw.Range(meals_rg).rows:
-            meals[dispo_idx["AMOUNT"]].value = None
+            meals[dispo_idx["AMOUNT"]].clear_contents()
 
     if transp_rg is not (None):
         for transp in xw.Range(transp_rg).rows:
-            transp[dispo_idx["AMOUNT"]].value = None
+            transp[dispo_idx["AMOUNT"]].clear_contents()
 
     if parking_rg is not (None):
-        xw.Range(parking_rg)[dispo_idx["AMOUNT"]].value = None
+        xw.Range(parking_rg)[dispo_idx["AMOUNT"]].clear_contents()
 
     if repl_num_rg is not None:
-        xw.Range(repl_num_rg).value = None
+        xw.Range(repl_num_rg).clear_contents()
 
 
 def get_repl_folder():

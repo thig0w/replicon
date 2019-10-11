@@ -132,7 +132,11 @@ class UiDialog(object):
     # @pyqtSlot('QString')
     def set_url(self, url):
         self.list_lock.acquire()
-        if not (self.nfes.__contains__(url)) and url is not None:
+        if (
+            not (self.nfes.__contains__(url))
+            and url is not None
+            and str(url).startswith("http")
+        ):
             logger.debug("Initializing Sefaz Class for url: %s", url)
             self.nfes[url] = Sefaz(url, self.web_driver, self.webdriver_lock)
             self.nfes[url].start()

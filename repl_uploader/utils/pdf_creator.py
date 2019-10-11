@@ -147,6 +147,7 @@ def create_pdf_panel(folder_root):
     logger.debug("Starting nfs pdf panel creation")
 
 
+# TODO: Deprecated, we do not attach the pdf to the replicon anymore
 def to_base64(fpath):
     if fpath is None:
         logger.debug("Path is null, no base64 string was created")
