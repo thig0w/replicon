@@ -1,3 +1,5 @@
+# pip install travis-encrypt
+
 language: python
 env:
   - INSTALL_ON_LINUX=1
@@ -8,3 +10,9 @@ install:
   - pip install -r requirements.txt
 script:
   - python -c "pass"
+deploy:
+  provider: pypi
+  user: "__token__"
+  password: $PYPI_TOKEN
+  on:
+    branch: master

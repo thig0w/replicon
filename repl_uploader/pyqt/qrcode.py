@@ -14,9 +14,9 @@ from PyQt5.QtGui import QPixmap
 from phantomjs_bin import executable_path
 from selenium import webdriver
 
-import replicon_ws
-from pyqt.CamReader import CamReader
-from pyqt.Sefaz import Sefaz
+from repl_uploader import replicon_ws
+from repl_uploader.pyqt.CamReader import CamReader
+from repl_uploader.pyqt.Sefaz import Sefaz
 
 logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger(__name__)
@@ -132,7 +132,11 @@ class UiDialog(object):
     # @pyqtSlot('QString')
     def set_url(self, url):
         self.list_lock.acquire()
-        if not (self.nfes.__contains__(url)) and url is not None:
+        if (
+            not (self.nfes.__contains__(url))
+            and url is not None
+            and str(url).startswith("http")
+        ):
             logger.debug("Initializing Sefaz Class for url: %s", url)
             self.nfes[url] = Sefaz(url, self.web_driver, self.webdriver_lock)
             self.nfes[url].start()

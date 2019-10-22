@@ -1,2 +1,0 @@
-cd "C:\Repositorios\thi\replicon"
-xlwings quickstart replicon_ws

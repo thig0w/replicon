@@ -13,6 +13,8 @@ logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger(__name__)
 
 
+# TODO: this class implements just the logic for RS.
+#  Rewrite it to be extensible for each state/SEFAZ.
 class Sefaz(QThread):
     def __init__(self, url, driver, lock):
         super().__init__()

@@ -9,8 +9,8 @@ import win32com.client as win32
 import xlwings as xw
 from win32com.client.gencache import EnsureDispatch
 
-import pdf_creator
-from replicon import Replicon
+from repl_uploader import Replicon
+from repl_uploader.utils import pdf_creator
 
 # Starting logging
 logging.basicConfig(level=logging.NOTSET)
@@ -143,7 +143,7 @@ def create_replicon(password, all_sheets=False):
                     )
                 )
 
-        # Print line deprecated - Plan to remove it
+        # TODO: Print line deprecated - Plan to remove it
         if print_rg is not (None):
             printing = xw.Range(print_rg).value
             if printing[dispo_idx["AMOUNT"]] is not (None):
@@ -308,14 +308,17 @@ def generate_xl_pdf(path, repl_num):
 def clean_xl():
     if meals_rg is not (None):
         for meals in xw.Range(meals_rg).rows:
-            meals[dispo_idx["AMOUNT"]].value = None
+            meals[dispo_idx["AMOUNT"]].clear_contents()
 
     if transp_rg is not (None):
         for transp in xw.Range(transp_rg).rows:
-            transp[dispo_idx["AMOUNT"]].value = None
+            transp[dispo_idx["AMOUNT"]].clear_contents()
 
     if parking_rg is not (None):
-        xw.Range(parking_rg)[dispo_idx["AMOUNT"]].value = None
+        xw.Range(parking_rg)[dispo_idx["AMOUNT"]].clear_contents()
+
+    if repl_num_rg is not None:
+        xw.Range(repl_num_rg).clear_contents()
 
 
 def get_repl_folder():
@@ -359,7 +362,7 @@ def fill_xl_from_list(list):
 
 
 def init_camera():
-    from pyqt.qrcode import UiDialog
+    from repl_uploader.pyqt.qrcode import UiDialog
 
     xw.Range(error_rg).value = ""
     if not images_path_exists(False):
@@ -371,8 +374,14 @@ def init_camera():
     del ui
 
 
+def get_version():
+    import repl_uploader
+
+    xw.Range("A1").value = repl_uploader.VERSION
+
+
 if __name__ == "__main__" or __name__ == "__builtin__":
-    # create_replicon('', False)
+    # create_replicon('Senhacomplexa2', False)
     send_mail()
     # generate_xl_pdf('C:\Users\LOGIC\Dropbox\Trabalho\Replicon', '1234')
     # generate_xl_pdf()
