@@ -111,8 +111,13 @@ class Sefaz(QThread):
 
 if __name__ == "__main__" or __name__ == "__builtin__":
     import threading
-    from phantomjs_bin import executable_path
     from selenium import webdriver
+    from chromedriver_binary import chromedriver_filename
+    from selenium import webdriver
+    from selenium.webdriver.chrome.options import Options
+
+    chrome_options = Options()
+    chrome_options.add_argument("--headless")
 
     url_1 = (
         "https://www.sefaz.rs.gov.br/NFCE/NFCE-COM.aspx?"
@@ -124,7 +129,9 @@ if __name__ == "__main__" or __name__ == "__builtin__":
     )
     a = Sefaz(
         url_frame,
-        webdriver.PhantomJS(executable_path=executable_path),
+        webdriver.Chrome(
+            executable_path=chromedriver_filename, chrome_options=chrome_options
+        ),
         threading.Lock(),
     )
     a.run()

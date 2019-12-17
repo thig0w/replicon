@@ -11,8 +11,9 @@ import threading
 
 from PyQt5 import QtCore, QtWidgets
 from PyQt5.QtGui import QPixmap
-from phantomjs_bin import executable_path
+from chromedriver_binary import chromedriver_filename
 from selenium import webdriver
+from selenium.webdriver.chrome.options import Options
 
 from repl_uploader import replicon_ws
 from repl_uploader.pyqt.CamReader import CamReader
@@ -127,7 +128,12 @@ class UiDialog(object):
         self.label.setPixmap(QPixmap.fromImage(image))
         self.populate_table()
         if self.web_driver is None:
-            self.web_driver = webdriver.PhantomJS(executable_path=executable_path)
+            logger.debug("Initializing web browser")
+            chrome_options = Options()
+            chrome_options.add_argument("--headless")
+            self.web_driver = webdriver.Chrome(
+                executable_path=chromedriver_filename, chrome_options=chrome_options
+            )
 
     # @pyqtSlot('QString')
     def set_url(self, url):

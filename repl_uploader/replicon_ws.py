@@ -17,6 +17,7 @@ logging.basicConfig(level=logging.NOTSET)
 logger = logging.getLogger(__name__)
 
 # Get Configured ranges
+# TODO: change to get the full path to the option (eg. =Config!D10)
 meals_rg = xw.sheets["Config"].range("D5").value
 transp_rg = xw.sheets["Config"].range("D6").value
 parking_rg = xw.sheets["Config"].range("D7").value
