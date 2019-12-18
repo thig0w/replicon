@@ -4,6 +4,8 @@ import os
 import shutil
 import tarfile
 from datetime import timedelta, datetime
+import sys
+import uuid
 
 import win32com.client as win32
 import xlwings as xw
@@ -18,6 +20,7 @@ logger = logging.getLogger(__name__)
 
 # Get Configured ranges
 # TODO: change to get the full path to the option (eg. =Config!D10)
+defautl_img_path = xw.sheets["Config"].range("D3").value
 meals_rg = xw.sheets["Config"].range("D5").value
 transp_rg = xw.sheets["Config"].range("D6").value
 parking_rg = xw.sheets["Config"].range("D7").value
@@ -177,11 +180,12 @@ def create_replicon(password, all_sheets=False):
 def images_path_exists(replicon_needed=True):
     # Clean Error Cell
     xw.Range(error_rg).value = ""
+    images_path = get_repl_folder()
 
     if (
-        xw.Range(images_path_rg).value is None
+        images_path is None
         or (xw.Range(repl_num_rg).value is None and replicon_needed)
-        or not os.path.exists(xw.Range(images_path_rg).value)
+        or not os.path.exists(images_path)
     ):
         xw.Range(
             error_rg
@@ -200,24 +204,20 @@ def send_mail():
         return
 
     # check if images path contains the replicon number to rename it
-    if not xw.Range(images_path_rg).value.__contains__(xw.Range(repl_num_rg).value):
+    if not get_repl_folder().__contains__(xw.Range(repl_num_rg).value):
         new_path = (
-            "\\".join(xw.Range(images_path_rg).value.split("\\")[:-1])
+            "\\".join(get_repl_folder().split("\\")[:-1])
             + "\\"
             + xw.Range(repl_num_rg).value
         )
-        logger.debug(
-            "Renaming folder %s to %s" % (xw.Range(images_path_rg).value, new_path)
-        )
-        shutil.move(xw.Range(images_path_rg).value, new_path)
-        xw.Range(images_path_rg).value = new_path
+        logger.debug("Renaming folder %s to %s" % (get_repl_folder(), new_path))
+        shutil.move(get_repl_folder(), new_path)
+        set_repl_folder(xw.Range(repl_num_rg).value)
 
     photo_pdf_path = pdf_creator.create_pdf(
-        xw.Range(images_path_rg).value, xw.Range(repl_num_rg).value
+        get_repl_folder(), xw.Range(repl_num_rg).value
     )
-    list_pdf_path = generate_xl_pdf(
-        xw.Range(images_path_rg).value, xw.Range(repl_num_rg).value
-    )
+    list_pdf_path = generate_xl_pdf(get_repl_folder(), xw.Range(repl_num_rg).value)
 
     logger.debug("Starting Mail creation")
     outlook = win32.Dispatch("outlook.application")
@@ -258,21 +258,14 @@ def send_mail():
     # copy replicon list to main folder
     logger.debug(
         "Copying pdf list from %s to %s"
-        % (
-            list_pdf_path,
-            os.path.dirname(os.path.dirname(xw.Range(images_path_rg).value)),
-        )
+        % (list_pdf_path, os.path.dirname(os.path.dirname(get_repl_folder())))
     )
-    shutil.copy(list_pdf_path, os.path.dirname(xw.Range(images_path_rg).value))
+    shutil.copy(list_pdf_path, os.path.dirname(get_repl_folder()))
 
-    tar = tarfile.open(xw.Range(images_path_rg).value + "ok.tgz", "w:gz")
-    tar.add(
-        xw.Range(images_path_rg).value,
-        filter=reset,
-        arcname=xw.Range(images_path_rg).value.split("\\")[-1],
-    )
+    tar = tarfile.open(get_repl_folder() + "ok.tgz", "w:gz")
+    tar.add(get_repl_folder(), filter=reset, arcname=get_repl_folder().split("\\")[-1])
     tar.close()
-    shutil.rmtree(xw.Range(images_path_rg).value, ignore_errors=True)
+    shutil.rmtree(get_repl_folder(), ignore_errors=True)
 
 
 def reset(tarinfo):
@@ -321,9 +314,19 @@ def clean_xl():
     if repl_num_rg is not None:
         xw.Range(repl_num_rg).clear_contents()
 
+    if images_path_rg is not None:
+        xw.Range(images_path_rg).api.MergeArea.ClearContents()
+
 
 def get_repl_folder():
-    return xw.Range(images_path_rg).value
+    if xw.Range(images_path_rg).value is None:
+        xw.Range(images_path_rg).value = uuid.uuid4().hex[0:10]
+        os.mkdir(defautl_img_path + "\\" + xw.Range(images_path_rg).value)
+    return defautl_img_path + "\\" + xw.Range(images_path_rg).value
+
+
+def set_repl_folder(value):
+    xw.Range(images_path_rg).value = value
 
 
 def fill_xl_from_list(list):
@@ -382,8 +385,8 @@ def get_version():
 
 
 if __name__ == "__main__" or __name__ == "__builtin__":
-    # create_replicon('Senhacomplexa2', False)
-    send_mail()
+    # create_replicon('', False)
+    # send_mail()
     # generate_xl_pdf('C:\Users\LOGIC\Dropbox\Trabalho\Replicon', '1234')
     # generate_xl_pdf()
     # fill_xl_from_list(
@@ -394,3 +397,4 @@ if __name__ == "__main__" or __name__ == "__builtin__":
     #         ["09/08/2019", "20,00"],
     #     ]
     # )
+    clean_xl()
