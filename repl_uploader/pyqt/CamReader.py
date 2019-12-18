@@ -19,7 +19,10 @@ class CamReader(QThread):
         font = cv2.FONT_HERSHEY_PLAIN
 
         while True:
-            _, frame = cap.read()
+            read, frame = cap.read()
+            if not read:
+                raise Exception("Cannot read webcam!")
+
             decoded_objects = pyzbar.decode(frame)
             for obj in decoded_objects:
                 cv2.putText(frame, str(obj.data), (50, 50), font, 2, (255, 0, 0), 3)
