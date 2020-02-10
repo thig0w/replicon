@@ -113,7 +113,6 @@ if __name__ == "__main__" or __name__ == "__builtin__":
     import threading
     from selenium import webdriver
     from chromedriver_binary import chromedriver_filename
-    from selenium import webdriver
     from selenium.webdriver.chrome.options import Options
 
     chrome_options = Options()

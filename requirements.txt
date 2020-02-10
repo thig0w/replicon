@@ -1,5 +1,5 @@
 selenium
-PyMuPDF
+PyMuPDF==1.16.2
 Pillow
 PyQt5
 pyzbar
