@@ -15,7 +15,7 @@ class CamReader(QThread):
     found_qr = pyqtSignal("QString")
 
     def run(self):
-        cap = cv2.VideoCapture(0)
+        cap = cv2.VideoCapture(cv2.CAP_DSHOW)
         font = cv2.FONT_HERSHEY_PLAIN
 
         while True:

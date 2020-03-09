@@ -8,7 +8,8 @@ xlwings
 reportlab
 PyPDF2>=1.26.0
 simplejson>=3.17.0
-requests>=2.22.0
+requests>=2.23.0
 #pypiwin32==223
 pdfkit>=0.6.1
-chromedriver_binary
+chromedriver_binary==80.0.3987.106.0
+isoweek

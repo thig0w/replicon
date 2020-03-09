@@ -8,7 +8,7 @@ Simplify my expenses reports
 
 ## Installation
 
-1. Install Python - https://www.python.org/downloads/ (I am using python 3.7)
+1. Install Python - https://www.python.org/downloads/ (I am using python 3.8)
 
 2. Check if python is in the path environment variable
 
