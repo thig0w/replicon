@@ -19,17 +19,19 @@ class Replicon:
         self,
         company="logicinfo",
         userid="tweidman",
-        password=None,
+        token=None,
         project_cc=2058,
         expenseSlug=None,
         description="Created by TW: Change this desc",
         isExpense=True,
     ):
-        if password is None or password.__len__() == 0:
-            raise Exception("Password cannot be null!")
+        if token is None or token.__len__() == 0:
+            raise Exception(
+                "Token cannot be null, please follow instructions to generate it!"
+            )
         self.company = company
         self.userid = userid
-        self.password = password
+        self.token = token
         self.expenseSlug = expenseSlug
         self.description = description
         self.EXPENSE_STATUS_OPEN = "urn:replicon:approval-status:open"
@@ -75,12 +77,13 @@ class Replicon:
             self.set_project_uri_from_cc(project_cc, self.expenseUri)
 
     def __get_from_url(self, url):
-        headers = {"Content-type": "application/json", "Accept": "text/plain"}
+        headers = {
+            "content-type": "application/json",
+            "X-Replicon-Application": "repl_uploader",
+            "Authorization": f"Bearer {self.token}",
+        }
         response = requests.get(
-            url,
-            auth=(self.company + "\\" + self.userid, self.password),
-            headers=headers,
-            proxies=urllib.request.getproxies(),
+            url, headers=headers, proxies=urllib.request.getproxies()
         )
         logger.debug("get_from_url %s / %s", url, response)
         if response.ok:
@@ -97,11 +100,14 @@ class Replicon:
         return json_response
 
     def __post_to_url(self, url, data):
-        headers = {"Content-type": "application/json", "Accept": "text/plain"}
+        headers = {
+            "content-type": "application/json",
+            "X-Replicon-Application": "repl_uploader",
+            "Authorization": f"Bearer {self.token}",
+        }
 
         response = requests.post(
             url,
-            auth=(self.company + "\\" + self.userid, self.password),
             data=json.dumps(data),
             headers=headers,
             proxies=urllib.request.getproxies(),
@@ -271,9 +277,8 @@ class Replicon:
 
 
 if __name__ == "__main__" or __name__ == "__builtin__":
-    # getpass.win_getpass()
-    repl = Replicon("logicinfo", "tweidman", "pass", 2107)
-    # repl = Replicon('logicinfo', 'tweidman', 'pass', 2058, description='Teste')
+    repl = Replicon("logicinfo", "tweidman", "token", 2107)
+    # repl = Replicon('logicinfo', 'tweidman', 'Token', 2058, description='Teste')
     #
     # print repl.useruri
     #
