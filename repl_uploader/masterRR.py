@@ -11,6 +11,8 @@ logger = logging.getLogger(__name__)
 
 local_currency = "BRL"
 
+repl_token = xw.sheets["Config"].range("D2").value
+
 
 @xw.func
 def hello(name):
@@ -25,7 +27,7 @@ def get_report(password, reportUri=None):
         logger.debug("Init Replicon")
         repl = Replicon(
             userid="tweidman",
-            password=password,
+            token=repl_token,
             project_cc=None,
             expenseSlug=None,
             description=None,
