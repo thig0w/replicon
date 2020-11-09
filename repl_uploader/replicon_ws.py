@@ -13,6 +13,7 @@ from win32com.client.gencache import EnsureDispatch
 
 from repl_uploader import Replicon
 from repl_uploader.utils import pdf_creator
+from repl_uploader.utils.token_generator import TGen
 
 # Starting logging
 logging.basicConfig(level=logging.NOTSET)
@@ -39,7 +40,6 @@ num_days_rg = xw.sheets["Config"].range("D19").value
 printing_rg = xw.sheets["Config"].range("D20").value
 start_date_rg = xw.sheets["Config"].range("D21").value
 repl_return_amt_rg = xw.sheets["Config"].range("D22").value
-repl_token = xw.sheets["Config"].range("D34").value
 
 # Create dictionary to get column indexes
 dispo_idx = {
@@ -67,9 +67,10 @@ def create_replicon(password, all_sheets=False):
 
         # Get Replicon
         try:
+            token = TGen()
             repl = Replicon(
                 userid=xw.sheets["Config"].range("D2").value,
-                token=repl_token,
+                token=token.get_token(),
                 project_cc=int(xw.Range("C2").value),
                 expenseSlug=str(int(xw.Range(repl_num_rg).value))
                 if xw.Range(repl_num_rg).value is not None
@@ -386,7 +387,7 @@ def get_version():
 
 
 if __name__ == "__main__" or __name__ == "__builtin__":
-    # create_replicon('', False)
+    create_replicon("", False)
     # send_mail()
     # generate_xl_pdf('C:\Users\LOGIC\Dropbox\Trabalho\Replicon', '1234')
     # generate_xl_pdf()
@@ -398,4 +399,4 @@ if __name__ == "__main__" or __name__ == "__builtin__":
     #         ["09/08/2019", "20,00"],
     #     ]
     # )
-    clean_xl()
+    # clean_xl()
