@@ -384,6 +384,7 @@ def get_version():
     import repl_uploader
 
     xw.Range("A1").value = repl_uploader.VERSION
+    xw.Range("A2").value = sys.version
 
 
 if __name__ == "__main__" or __name__ == "__builtin__":
