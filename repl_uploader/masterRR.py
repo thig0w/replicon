@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 import logging
 import xlwings as xw
+from repl_uploader.utils.token_generator import TGen
 
 from repl_uploader import Replicon
 from repl_uploader.utils.ex_rates import Rates
@@ -10,8 +11,6 @@ logging.basicConfig(level=logging.NOTSET)
 logger = logging.getLogger(__name__)
 
 local_currency = "BRL"
-
-repl_token = xw.sheets["Config"].range("D2").value
 
 
 @xw.func
@@ -24,10 +23,11 @@ def get_report(password, reportUri=None):
     sheet = xw.sheets.active
 
     try:
+        token = TGen()
         logger.debug("Init Replicon")
         repl = Replicon(
             userid="tweidman",
-            token=repl_token,
+            token=token.get_token(),
             project_cc=None,
             expenseSlug=None,
             description=None,

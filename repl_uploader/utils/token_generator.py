@@ -8,7 +8,7 @@ from appdirs import AppDirs
 from requests import Session
 
 # Starting logging
-logging.basicConfig(level=logging.DEBUG)
+logging.basicConfig(level=logging.NOTSET)
 logger = logging.getLogger(__name__)
 
 
