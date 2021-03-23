@@ -41,7 +41,7 @@ class TokenUiDialog(object):
         self.password.setEchoMode(QtWidgets.QLineEdit.Password)
         self.password.setObjectName("le_password")
         self.label = QtWidgets.QLabel(dialog)
-        self.label.setGeometry(QtCore.QRect(10, 10, 191, 16))
+        self.label.setGeometry(QtCore.QRect(10, 10, 300, 16))
         self.label.setObjectName("label")
         self.label_2 = QtWidgets.QLabel(dialog)
         self.label_2.setGeometry(QtCore.QRect(10, 60, 131, 16))
@@ -87,7 +87,9 @@ class TokenUiDialog(object):
         _translate = QtCore.QCoreApplication.translate
         Dialog.setWindowTitle(_translate("Dialog", "Dialog"))
         self.label.setText(
-            _translate("Dialog", "Please insert your replicon password:")
+            _translate(
+                "Dialog", f"Please insert replicon password for user {self.tgen.user}:"
+            )
         )
         self.label_2.setText(_translate("Dialog", "Code Received by e-mail:"))
 
@@ -169,7 +171,11 @@ class TGen:
         except AttributeError:
             pass
 
-        data = '{"identity":{"loginName":"tweidman"},"description":"Token for logic\'s repl_uploader","unitOfWorkId":4956}'
+        data = {
+            "identity": {"loginName": self.user},
+            "description": "Token for logic's repl_uploader",
+            "unitOfWorkId": 4956,
+        }
 
         headers = {
             "Connection": "keep-alive",
@@ -187,7 +193,7 @@ class TGen:
 
         response = self.s.post(
             "https://na5.replicon.com/services/AuthenticationService1.svc/CreateAccessToken2",
-            data=data,
+            data=json.dumps(data),
             headers=headers,
         )
 

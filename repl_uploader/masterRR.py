@@ -13,20 +13,16 @@ logger = logging.getLogger(__name__)
 local_currency = "BRL"
 
 
-@xw.func
-def hello(name):
-    return "hello {0}".format(name)
-
-
 def get_report(password, reportUri=None):
     logger.debug("Initializing Report Generation...")
     sheet = xw.sheets.active
+    user_name_rg = xw.sheets["Config"].range("D2").value
 
     try:
         token = TGen()
         logger.debug("Init Replicon")
         repl = Replicon(
-            userid="tweidman",
+            userid=user_name_rg,
             token=token.get_token(),
             project_cc=None,
             expenseSlug=None,
