@@ -19,7 +19,7 @@ def get_report(password, reportUri=None):
     user_name_rg = xw.sheets["Config"].range("D2").value
 
     try:
-        token = TGen()
+        token = TGen(user=user_name_rg)
         logger.debug("Init Replicon")
         repl = Replicon(
             userid=user_name_rg,

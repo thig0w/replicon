@@ -67,7 +67,7 @@ def create_replicon(password, all_sheets=False):
 
         # Get Replicon
         try:
-            token = TGen()
+            token = TGen(user=xw.sheets["Config"].range("D2").value)
             repl = Replicon(
                 userid=xw.sheets["Config"].range("D2").value,
                 token=token.get_token(),
