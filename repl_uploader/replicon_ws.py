@@ -240,7 +240,7 @@ def send_mail():
         + " - "
         + xw.Range(client_info_rg).value
         + " Expense Sheet ("
-        + str(int(xw.Range("C2").value))
+        + str(xw.Range("C2").value)
         + ") - "
         + xw.Range(start_date_rg).value.strftime("%d/%m/%Y")
         + " - "
