@@ -4,7 +4,7 @@
 import logging
 from .replicon import Replicon
 
-VERSION = "2.2.5"
+VERSION = "2.2.6"
 __AUTHOR__ = "Thiago Weidman (tw@weidman.com.br)"
 __COPYRIGHT__ = "(C) 2014-2019 Thiago Weidman. GNU GPL 3 or later."
 

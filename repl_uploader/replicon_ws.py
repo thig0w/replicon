@@ -71,7 +71,7 @@ def create_replicon(password, all_sheets=False):
             repl = Replicon(
                 userid=xw.sheets["Config"].range("D2").value,
                 token=token.get_token(),
-                project_cc=int(xw.Range("C2").value),
+                project_cc=xw.Range("C2").value,
                 expenseSlug=str(int(xw.Range(repl_num_rg).value))
                 if xw.Range(repl_num_rg).value is not None
                 else None,
